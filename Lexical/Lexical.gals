@@ -1,11 +1,14 @@
 #Options
 GenerateScanner = true
-GenerateParser = false
+GenerateParser = true
 Language = Java
 ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
 ScannerCaseSensitive = true
-ScannerTable = Full
+ScannerTable = Compact
 Input = Stream
+Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*)|(##(.|\n)*##)
 identifier: [a-zA-Z_][a-zA-Z0-9_]*
@@ -17,14 +20,13 @@ boolean: true | TRUE | false | FALSE
 binary: 0b[0-1]+
 hexadecimal: 0x[0-9a-fA-F]+
 string: \"[^\"]*\"
-
-
 #Tokens
 : {ignore}
 NEW_LINE: \n
 
 VAR: "$"{identifier}
 CONST: "&"{identifier}
+MAIN_FUNCTION: "@main"
 FUNCTION: "@"{identifier}
 
 // CONDITIONAL
@@ -49,6 +51,8 @@ COLON: ":"
 RETURN: "return"
 IN: "in"
 NULL: "null"
+
+FUNCTION_RETURN: "->"
 
 SCOPE_OPEN: "{"
 SCOPE_CLOSE: "}"
@@ -99,11 +103,54 @@ OP_BW_XOR: "^"
 OP_BW_LS: "<<"
 OP_BW_RS: ">>"
 
-// PRIMITIVE TYPES - NOT USED (IMPLICIT TYPING)
+// PRIMITIVE TYPES
+TYPE_VOID: "void"
 TYPE_INT: "int"
 TYPE_FLOAT: "float"
 TYPE_DOUBLE: "double"
 TYPE_STRING: "string"
 TYPE_CHAR: "char"
 TYPE_BOOLEAN: "boolean"
-TYPE_STRING: "string"
+#NonTerminals
+<program>
+<function_list>
+<main_function>
+<function>
+<command_list>
+<command>
+
+<fn_parameter_list>
+<fn_parameters>
+<fn_parameter>
+
+<parameter_list>
+<parameters>
+<parameter>
+
+<type>
+<type_values>
+<array>
+<new_line>
+#Grammar
+<program> ::= <main_function> | <function_list> <main_function>;
+<main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN NEW_LINE <command_list> SCOPE_CLOSE <new_line>;
+<function_list> ::= <function> | <function> <function_list>;
+<function> ::= FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN NEW_LINE <command_list> SCOPE_CLOSE <new_line>;
+
+<fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
+<fn_parameter> ::= VAR COLON <type>;
+
+<parameter_list> ::= SUBGROUP_OPEN <parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<parameters> ::= <parameter> | <parameter> COMMA <parameters>;
+<parameter> ::= VAR | <type_values>;
+
+<type> ::= TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
+<type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | <array>;
+<array> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
+<new_line> ::= NEW_LINE | NEW_LINE <new_line>;
+
+<command_list> ::= <command> NEW_LINE | <command> NEW_LINE <command_list>;
+<command> ::= VAR OP_ASSIGN VAR | VAR OP_ASSIGN CONST | VAR OP_ASSIGN <type_values>;
+<command> ::= CONST OP_ASSIGN CONST | CONST OP_ASSIGN VAR | CONST OP_ASSIGN <type_values>;
+<command> ::= FUNCTION <parameter_list> | VAR OP_ASSIGN FUNCTION <parameter_list>;
