@@ -24,9 +24,10 @@ string: \"[^\"]*\"
 : {ignore}
 NEW_LINE: \n
 
+MAIN_FUNCTION: "@main"
+
 VAR: "$"{identifier}
 CONST: "&"{identifier}
-MAIN_FUNCTION: "@main"
 FUNCTION: "@"{identifier}
 
 // CONDITIONAL
@@ -113,11 +114,9 @@ TYPE_CHAR: "char"
 TYPE_BOOLEAN: "boolean"
 #NonTerminals
 <program>
-<function_list>
 <main_function>
+<function_list>
 <function>
-<command_list>
-<command>
 
 <fn_parameter_list>
 <fn_parameters>
@@ -131,6 +130,9 @@ TYPE_BOOLEAN: "boolean"
 <type_values>
 <array>
 <new_line>
+
+<command_list>
+<command>
 #Grammar
 <program> ::= <main_function> | <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN NEW_LINE <command_list> SCOPE_CLOSE <new_line>;
