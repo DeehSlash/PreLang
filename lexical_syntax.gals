@@ -152,7 +152,7 @@ TYPE_BOOLEAN: "boolean"
 <op_arithmetic_high>
 <op_arithmetic_higher>
 #Grammar
-<program> ::= <new_line> <main_function> | <new_line> <function_list> <main_function>;
+<program> ::= <main_function> | <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE <new_line>;
 <function_list> ::= <function> | <function> <function_list>;
 <function> ::= FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE <new_line>;
