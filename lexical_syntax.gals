@@ -172,7 +172,7 @@ TYPE_BOOLEAN: "boolean"
 
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
 <command> ::= VAR OP_ASSIGN <exp>;
-<command> ::= CONST OP_ASSIGN CONST | CONST OP_ASSIGN VAR | CONST OP_ASSIGN <type_values>;
+<command> ::= CONST OP_aSSIGN <exp>;
 <command> ::= FUNCTION <parameter_list> | VAR OP_ASSIGN FUNCTION <parameter_list>;
 
 <exp>  ::= <exp> OP_OR <exp1> | <exp1>;
