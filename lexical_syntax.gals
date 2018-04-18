@@ -79,7 +79,6 @@ OP_SUB: "-"
 OP_MULT: "*"
 OP_DIV: "/"
 OP_MOD: "%"
-OP_POW: "^"
 OP_INC: "++"
 OP_DEC: "--"
 
@@ -133,6 +132,25 @@ TYPE_BOOLEAN: "boolean"
 
 <command_list>
 <command>
+
+<exp>
+<exp1>
+<exp2>
+<exp3>
+<exp4>
+<exp5>
+<exp6>
+<exp7>
+<exp8>
+<exp9>
+<exp10>
+
+<op_relational>
+<op_negate>
+<op_bitwise>
+<op_arithmetic_low>
+<op_arithmetic_high>
+<op_arithmetic_higher>
 #Grammar
 <program> ::= <new_line> <main_function> | <new_line> <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE <new_line>;
@@ -153,8 +171,27 @@ TYPE_BOOLEAN: "boolean"
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
 
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
-<command> ::= VAR OP_ASSIGN VAR | VAR OP_ASSIGN CONST | VAR OP_ASSIGN <type_values>;
+<command> ::= VAR OP_ASSIGN <exp>;
 <command> ::= CONST OP_ASSIGN CONST | CONST OP_ASSIGN VAR | CONST OP_ASSIGN <type_values>;
 <command> ::= FUNCTION <parameter_list> | VAR OP_ASSIGN FUNCTION <parameter_list>;
 
+<exp>  ::= <exp> OP_OR <exp1> | <exp1>;
+<exp1> ::= <exp1> OP_AND <exp2> | <exp2>;
+<exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
+<exp3> ::= <exp3> OP_BW_XOR <exp4> | <exp4>;
+<exp4> ::= <exp4> OP_BW_AND <exp5> | <exp5>;
+<exp5> ::= <exp5> <op_relational> <exp6> | <exp6>;
+<exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
+<exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
+<exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9> ;
+<exp9> ::= <op_negate> <exp10> | <exp10>;
+<exp10> ::= INT | FLOAT | VAR | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
+<op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
+<op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
+<op_bitwise> ::= OP_BW_LS | OP_BW_RS;
+<op_arithmetic_low> ::= OP_ADD | OP_SUB;
+<op_arithmetic_high> ::= OP_MULT | OP_DIV | OP_MOD;
+
+// Expression test
+// -$x + 8.8 - !$x * 2 / ~$y % 3 << 7 != $y >> 3 || ($x <= 3 && $y > 8) | $p & ($h ^ $g)
