@@ -1,11 +1,19 @@
+#!
+# APLICACAO PARA TESTE DA PRELANG
+# DESENVOLVIDA POR ANDRE E MIGUEL
+!#
+
+# Soma dois inteiros
 @add ($a: int, $b: int) -> int {
   return $a + $b
 }
 
+# Subtrai dois inteiros
 @sub ($a: int, $b: int) -> int {
   return $a - $b
 }
 
+# Ponto de entrada da aplicação
 @main ($arg: char) -> int {
   if($arg == '+') {
     return @add(1, 1)
@@ -13,3 +21,7 @@
     return @sub(1, 1)
   }
 }
+
+#!
+# FIM DA APLICACAO
+!#
