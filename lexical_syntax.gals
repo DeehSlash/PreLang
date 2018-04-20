@@ -127,13 +127,18 @@ TYPE_BOOLEAN: "boolean"
 
 <type>
 <type_values>
-<array>
+<array_values>
+<array_size>
 <new_line>
 
 <scope>
 
 <command_list>
 <command>
+
+<array>
+<attribute>
+<attributes>
 
 <if>
 <else>
@@ -177,15 +182,17 @@ TYPE_BOOLEAN: "boolean"
 
 <type> ::= TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
 <type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | <array>;
-<array> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
+<array_values> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
+<array_size> ::= INDEX_OPEN INT INDEX_CLOSE | INDEX_OPEN INDEX_CLOSE;
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
 
 <scope> ::= SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE;
 
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
-<command> ::= VAR OP_ASSIGN <exp>;
-<command> ::= CONST OP_ASSIGN <exp>;
-<command> ::= FUNCTION <parameter_list> | VAR OP_ASSIGN FUNCTION <parameter_list>;
+<command> ::= <attributes>;
+<command> ::= <attribute> OP_ASSIGN <exp>;
+//<command> ::= <array> OP_ASSIGN <array_values>;
+<command> ::= FUNCTION <parameter_list> | <attribute> OP_ASSIGN FUNCTION <parameter_list>;
 // Conditional
 <command> ::= <if>;
 <command> ::= <if> <else>;
@@ -194,6 +201,10 @@ TYPE_BOOLEAN: "boolean"
 // Loop
 <command> ::= <while>;
 <command> ::= <do_while>;
+
+<array> ::= VAR <array_size> | CONST <array_size>;
+<attribute> ::= VAR | CONST | VAR <array_size> | CONST <array_size>;
+<attributes> ::= <attribute> | <attribute> COMMA <attributes>;
 
 <if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
 <else> ::= ELSE <scope>;
@@ -214,7 +225,7 @@ TYPE_BOOLEAN: "boolean"
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9> ;
 <exp9> ::= <op_negate> <exp10> | <exp10>;
-<exp10> ::= INT | FLOAT | BOOLEAN | VAR | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+<exp10> ::= INT | FLOAT | BOOLEAN | VAR | <array> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
 // Operations
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
