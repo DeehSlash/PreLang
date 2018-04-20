@@ -147,6 +147,7 @@ TYPE_BOOLEAN: "boolean"
 
 <while>
 <do_while>
+<for>
 
 <exp>
 <exp1>
@@ -201,6 +202,7 @@ TYPE_BOOLEAN: "boolean"
 // Loop
 <command> ::= <while>;
 <command> ::= <do_while>;
+<command> ::= <for>;
 
 <array> ::= VAR <array_size> | CONST <array_size>;
 <attribute> ::= VAR | CONST | VAR <array_size> | CONST <array_size>;
@@ -236,3 +238,6 @@ TYPE_BOOLEAN: "boolean"
 
 // Expression test
 // -$x + 8.8 - !$x * 2 / ~$y % 3 << 7 != $y >> 3 || ($x <= 3 && $y > 8) | $p & ($h ^ $g)
+
+
+<for>  ::=  FOR SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
