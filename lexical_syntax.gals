@@ -64,6 +64,8 @@ SUBGROUP_CLOSE: ")"
 INDEX_OPEN: "["
 INDEX_CLOSE: "]"
 
+RANGE: "range"
+
 // VALUES
 INT: {int}
 FLOAT: {float}
@@ -148,6 +150,7 @@ TYPE_BOOLEAN: "boolean"
 <while>
 <do_while>
 <for>
+<range>
 
 <exp>
 <exp1>
@@ -229,6 +232,8 @@ TYPE_BOOLEAN: "boolean"
 <exp9> ::= <op_negate> <exp10> | <exp10>;
 <exp10> ::= INT | FLOAT | BOOLEAN | VAR | <array> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
+//range for loop
+<range> ::= <attribute> RANGE SUBGROUP_OPEN INT SUBGROUP_CLOSE;
 // Operations
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
@@ -240,4 +245,4 @@ TYPE_BOOLEAN: "boolean"
 // -$x + 8.8 - !$x * 2 / ~$y % 3 << 7 != $y >> 3 || ($x <= 3 && $y > 8) | $p & ($h ^ $g)
 
 
-<for>  ::=  FOR SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+<for>  ::=  FOR SUBGROUP_OPEN <range> SUBGROUP_CLOSE <scope>;
