@@ -1,5 +1,10 @@
 # PreLang
 
+ + É necessario executar no galsModificado
+ + Configurar o semantico para string.
+ + Escolher opcoes de tabela compactada
+ + Alterar os caracteres utf8 para sem acento.
+
 ## Descrição
 
 Este projeto pertence à disciplina de **Compiladores** do curso de **Ciência da Computação**. Tem como objetivo implementar uma nova linguagem, criando a análise **léxica**, **sintática** e **semântica**.
