@@ -1,0 +1,77 @@
+package gals;
+
+public interface Constants extends ScannerConstants, ParserConstants
+{
+    int EPSILON  = 0;
+    int DOLLAR   = 1;
+
+    int t_NEW_LINE = 2;
+    int t_MAIN_FUNCTION = 3;
+    int t_PRINT = 4;
+    int t_INPUT = 5;
+    int t_VAR = 6;
+    int t_CONST = 7;
+    int t_FUNCTION = 8;
+    int t_IF = 9;
+    int t_ELSE = 10;
+    int t_ELSIF = 11;
+    int t_SWITCH = 12;
+    int t_CASE = 13;
+    int t_DEFAULT = 14;
+    int t_WHILE = 15;
+    int t_DO = 16;
+    int t_FOR = 17;
+    int t_CONTINUE = 18;
+    int t_BREAK = 19;
+    int t_COMMA = 20;
+    int t_STRUCTURE_REFERENCE = 21;
+    int t_COLON = 22;
+    int t_RETURN = 23;
+    int t_IN = 24;
+    int t_NULL = 25;
+    int t_FUNCTION_RETURN = 26;
+    int t_SCOPE_OPEN = 27;
+    int t_SCOPE_CLOSE = 28;
+    int t_SUBGROUP_OPEN = 29;
+    int t_SUBGROUP_CLOSE = 30;
+    int t_INDEX_OPEN = 31;
+    int t_INDEX_CLOSE = 32;
+    int t_RANGE = 33;
+    int t_INT = 34;
+    int t_FLOAT = 35;
+    int t_BOOLEAN = 36;
+    int t_BINARY = 37;
+    int t_HEXADECIMAL = 38;
+    int t_STRING = 39;
+    int t_OP_ASSIGN = 40;
+    int t_OP_ADD = 41;
+    int t_OP_SUB = 42;
+    int t_OP_MULT = 43;
+    int t_OP_DIV = 44;
+    int t_OP_MOD = 45;
+    int t_OP_INC = 46;
+    int t_OP_DEC = 47;
+    int t_OP_LT = 48;
+    int t_OP_LTE = 49;
+    int t_OP_EQ = 50;
+    int t_OP_NEQ = 51;
+    int t_OP_GT = 52;
+    int t_OP_GTE = 53;
+    int t_OP_AND = 54;
+    int t_OP_OR = 55;
+    int t_OP_NOT = 56;
+    int t_OP_BW_NOT = 57;
+    int t_OP_BW_AND = 58;
+    int t_OP_BW_OR = 59;
+    int t_OP_BW_XOR = 60;
+    int t_OP_BW_LS = 61;
+    int t_OP_BW_RS = 62;
+    int t_TYPE_VOID = 63;
+    int t_TYPE_INT = 64;
+    int t_TYPE_FLOAT = 65;
+    int t_TYPE_DOUBLE = 66;
+    int t_TYPE_STRING = 67;
+    int t_TYPE_CHAR = 68;
+    int t_TYPE_BOOLEAN = 69;
+
+}

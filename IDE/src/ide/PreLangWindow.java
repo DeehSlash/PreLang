@@ -5,6 +5,12 @@
  */
 package ide;
 
+import gals.LexicalError;
+import gals.Lexico;
+import gals.SemanticError;
+import gals.Semantico;
+import gals.Sintatico;
+import gals.SyntaticError;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -26,7 +32,9 @@ import javax.swing.filechooser.FileFilter;
 public class PreLangWindow extends javax.swing.JFrame {
 
     private File arquivoAberto = null;
-    
+    private Lexico lexico;
+    private Sintatico sintatico;
+    private Semantico semantico;
     
     /**
      * Creates new form PreLangWindow
@@ -43,14 +51,16 @@ public class PreLangWindow extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         centro = new javax.swing.JPanel();
         editorScrollPane = new javax.swing.JScrollPane();
         editor = new javax.swing.JTextArea();
+        status1 = new javax.swing.JPanel();
+        btnRodar1 = new javax.swing.JButton();
         console = new javax.swing.JPanel();
         status = new javax.swing.JPanel();
         labelStatus = new javax.swing.JLabel();
-        btnRodar = new javax.swing.JButton();
         consoleScrollPane = new javax.swing.JScrollPane();
         consoleContent = new javax.swing.JTextArea();
         menu = new javax.swing.JMenuBar();
@@ -64,15 +74,16 @@ public class PreLangWindow extends javax.swing.JFrame {
         setBackground(new java.awt.Color(0, 0, 0));
         setLocationByPlatform(true);
         setPreferredSize(new java.awt.Dimension(800, 600));
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        centro.setLayout(new java.awt.BorderLayout());
+        centro.setLayout(new java.awt.GridBagLayout());
 
         editorScrollPane.setBackground(new java.awt.Color(51, 51, 51));
 
-        editor.setBackground(new java.awt.Color(127, 130, 141));
+        editor.setBackground(new java.awt.Color(51, 51, 51));
         editor.setColumns(20);
-        editor.setFont(new java.awt.Font("SansSerif", 0, 20)); // NOI18N
-        editor.setForeground(new java.awt.Color(10, 20, 25));
+        editor.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        editor.setForeground(new java.awt.Color(238, 238, 238));
         editor.setRows(5);
         editor.setTabSize(2);
         editor.setCaretColor(new java.awt.Color(255, 255, 255));
@@ -82,50 +93,98 @@ public class PreLangWindow extends javax.swing.JFrame {
         editor.setMargin(new java.awt.Insets(10, 10, 10, 10));
         editorScrollPane.setViewportView(editor);
 
-        centro.add(editorScrollPane, java.awt.BorderLayout.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        centro.add(editorScrollPane, gridBagConstraints);
 
-        getContentPane().add(centro, java.awt.BorderLayout.CENTER);
+        status1.setBackground(java.awt.Color.darkGray);
+        status1.setLayout(new java.awt.GridBagLayout());
 
-        console.setLayout(new java.awt.BorderLayout());
+        btnRodar1.setForeground(new java.awt.Color(18, 47, 60));
+        btnRodar1.setText("Run");
+        btnRodar1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRodar1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        status1.add(btnRodar1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        centro.add(status1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.85;
+        getContentPane().add(centro, gridBagConstraints);
+
+        console.setForeground(java.awt.Color.darkGray);
+        console.setLayout(new java.awt.GridBagLayout());
 
         status.setBackground(java.awt.Color.darkGray);
-        status.setLayout(new java.awt.BorderLayout());
+        status.setLayout(new java.awt.GridBagLayout());
 
         labelStatus.setBackground(new java.awt.Color(151, 149, 149));
         labelStatus.setForeground(new java.awt.Color(255, 255, 255));
         labelStatus.setText("Output");
         labelStatus.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        status.add(labelStatus, java.awt.BorderLayout.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        status.add(labelStatus, gridBagConstraints);
 
-        btnRodar.setForeground(new java.awt.Color(18, 47, 60));
-        btnRodar.setText("Run");
-        btnRodar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRodarActionPerformed(evt);
-            }
-        });
-        status.add(btnRodar, java.awt.BorderLayout.EAST);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        console.add(status, gridBagConstraints);
 
-        console.add(status, java.awt.BorderLayout.NORTH);
-
-        consoleContent.setBackground(java.awt.Color.white);
+        consoleContent.setEditable(false);
+        consoleContent.setBackground(new java.awt.Color(51, 51, 51));
         consoleContent.setColumns(20);
         consoleContent.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        consoleContent.setForeground(new java.awt.Color(167, 45, 64));
+        consoleContent.setForeground(new java.awt.Color(238, 238, 238));
         consoleContent.setRows(7);
         consoleContent.setCaretColor(new java.awt.Color(255, 255, 255));
         consoleContent.setMargin(new java.awt.Insets(10, 10, 10, 10));
         consoleScrollPane.setViewportView(consoleContent);
 
-        console.add(consoleScrollPane, java.awt.BorderLayout.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        console.add(consoleScrollPane, gridBagConstraints);
 
-        getContentPane().add(console, java.awt.BorderLayout.SOUTH);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.15;
+        getContentPane().add(console, gridBagConstraints);
 
-        menu.setBackground(java.awt.Color.darkGray);
+        menu.setBackground(new java.awt.Color(51, 51, 51));
         menu.setForeground(java.awt.Color.darkGray);
         menu.setBorderPainted(false);
 
-        arquivo.setBackground(new java.awt.Color(0, 0, 0));
+        arquivo.setBackground(new java.awt.Color(51, 51, 51));
         arquivo.setForeground(new java.awt.Color(255, 255, 255));
         arquivo.setText("Arquivo");
 
@@ -204,12 +263,6 @@ public class PreLangWindow extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_sairActionPerformed
 
-    private void btnRodarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRodarActionPerformed
-        
-       
-        
-    }//GEN-LAST:event_btnRodarActionPerformed
-
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         if (arquivoAberto == null){
             JFileChooser fileChooser = new JFileChooser(System.getProperty("user.home"));
@@ -241,45 +294,24 @@ public class PreLangWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_salvarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+    private void btnRodar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRodar1ActionPerformed
+        lexico = new Lexico(editor.getText());        
+        sintatico = new Sintatico();
+        semantico = new Semantico();
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PreLangWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PreLangWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PreLangWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PreLangWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            consoleContent.setText("");
+            sintatico.parse(lexico, semantico);
+            consoleContent.append("OK");
+        } catch (LexicalError | SyntaticError | SemanticError ex) {
+            consoleContent.append(ex.getMessage());
         }
-        //</editor-fold>
+    }//GEN-LAST:event_btnRodar1ActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PreLangWindow().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem abrir;
     private javax.swing.JMenu arquivo;
-    private javax.swing.JButton btnRodar;
+    private javax.swing.JButton btnRodar1;
     private javax.swing.JPanel centro;
     private javax.swing.JPanel console;
     private javax.swing.JTextArea consoleContent;
@@ -291,5 +323,6 @@ public class PreLangWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem sair;
     private javax.swing.JMenuItem salvar;
     private javax.swing.JPanel status;
+    private javax.swing.JPanel status1;
     // End of variables declaration//GEN-END:variables
 }

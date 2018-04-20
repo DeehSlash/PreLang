@@ -1,14 +1,11 @@
 @main () -> int {
   if ($a == 2) {
     $a = $a - 1
-  } 
-  elsif (true) {
+  } elsif (true) {
     $a = $a + 1
-  } 
-  elsif (false) {
+  } elsif (false) {
     $a = 2
-  } 
-  else {
+  } else {
     $a = 3
   }
 }
