@@ -130,8 +130,18 @@ TYPE_BOOLEAN: "boolean"
 <array>
 <new_line>
 
+<scope>
+
 <command_list>
 <command>
+
+<if>
+<else>
+<single_elsif>
+<elsif>
+
+<while>
+<do_while>
 
 <exp>
 <exp1>
@@ -153,9 +163,9 @@ TYPE_BOOLEAN: "boolean"
 <op_arithmetic_higher>
 #Grammar
 <program> ::= <main_function> | <function_list> <main_function>;
-<main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE <new_line>;
+<main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line>;
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE <new_line>;
+<function> ::= FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line>;
 
 <fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
@@ -170,11 +180,30 @@ TYPE_BOOLEAN: "boolean"
 <array> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
 
+<scope> ::= SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE;
+
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
 <command> ::= VAR OP_ASSIGN <exp>;
-<command> ::= CONST OP_aSSIGN <exp>;
+<command> ::= CONST OP_ASSIGN <exp>;
 <command> ::= FUNCTION <parameter_list> | VAR OP_ASSIGN FUNCTION <parameter_list>;
+// Conditional
+<command> ::= <if>;
+<command> ::= <if> <else>;
+<command> ::= <if> <elsif>;
+<command> ::= <if> <elsif> <else>;
+// Loop
+<command> ::= <while>;
+<command> ::= <do_while>;
 
+<if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+<else> ::= ELSE <scope>;
+<elsif> ::= <single_elsif> | <single_elsif> <elsif>;
+<single_elsif> ::= ELSIF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+
+<while> ::= WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+<do_while> ::= DO <scope> WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+
+// Expressions
 <exp>  ::= <exp> OP_OR <exp1> | <exp1>;
 <exp1> ::= <exp1> OP_AND <exp2> | <exp2>;
 <exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
@@ -185,8 +214,9 @@ TYPE_BOOLEAN: "boolean"
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9> ;
 <exp9> ::= <op_negate> <exp10> | <exp10>;
-<exp10> ::= INT | FLOAT | VAR | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+<exp10> ::= INT | FLOAT | BOOLEAN | VAR | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
+// Operations
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
 <op_bitwise> ::= OP_BW_LS | OP_BW_RS;
