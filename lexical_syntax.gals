@@ -64,6 +64,7 @@ SUBGROUP_CLOSE: ")"
 INDEX_OPEN: "["
 INDEX_CLOSE: "]"
 
+IN: "in"
 RANGE: "range"
 
 // VALUES
@@ -151,6 +152,7 @@ TYPE_BOOLEAN: "boolean"
 <do_while>
 <for>
 <range>
+<range_types>
 
 <exp>
 <exp1>
@@ -233,7 +235,8 @@ TYPE_BOOLEAN: "boolean"
 <exp10> ::= INT | FLOAT | BOOLEAN | VAR | <array> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
 //range for loop
-<range> ::= <attribute> RANGE SUBGROUP_OPEN INT SUBGROUP_CLOSE;
+<range> ::= <attribute> IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
+<range_types> ::= INT | INT COMMA  INT | INT COMMA INT COMMA INT;
 // Operations
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
