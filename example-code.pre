@@ -1,49 +1,49 @@
-# Definição de constante
-&PI = 3.14
-
-##
-    Aplicação de exemplo
-    Ponto de entrada
-##
-@main ($args: int, $argc: int) -> int {
-    # Definição de variáveis e cálculos
-    $a = 3
-    $b = 2.5
-    $c = $a + $b
-    $potencia = $a ^ 2
-    $msg = "Olá mundo!"
-    
-    # Condicional
-    if ($a > 5) {
-        $msg = "$a é maior que 5"
-    } elsif ($a <= 5) {
-        $msg = "$a é menor ou igual a 5"
-    }
-
-    # Loop
-    $i = 1
-    while ($i < 10) {
-        $i++
-    }
-
-    for ($i in @range(0, 10)) {
-        continue
-    }
-
-    # Outros tipos
-    $vet = [1, 2, 3]
-    $verdadeiro = true
-    $binario = 0b100
-    $hexadecimal = 0xa1bcf2
-
-    # Switch
-    switch ($a) {
-        case 1:
-            break
-        default:
-            break
-    }
-
-    # Retorno
-    return 1
+@multPI(&PI: float, $mult: int) -> float {
+  return &PI * $mult
 }
+
+#!
+  Aplicacao de exemplo
+  Ponto de entrada
+!#
+@main ($args: string[], $argc: int) -> int {
+  # Definição de variáveis e cálculos
+  $a = 3
+  $b = 2.5
+  $c = $a + $b
+  &PI = 3.14
+  $potencia = $a ^ 2
+  $msg = "Olá mundo!"
+  
+  # Condicional
+  if ($a > 5) {
+    $msg = "$a é maior que 5"
+  } elsif ($a <= 5) {
+    $msg = "$a é menor ou igual a 5"
+  } else {
+    $msg = "O mundo acabou!"
+  }
+
+  # Loop
+  $i = 1
+  while ($i < 10) {
+    $i = $i + 1
+  }
+
+  for ($i in @range(0, 10)) {
+    @print($args[$i])
+  }
+
+  # Outros tipos
+  $vet = [1, 2, 3 * 5, $a]
+  $verdadeiro = true
+  $binario = 0b100
+  $hexadecimal = 0xa1bcf2
+
+  # Retorno
+  return 1
+}
+
+#!
+  FIM DO PROGRAMA
+!#

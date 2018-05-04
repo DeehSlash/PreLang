@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -29,6 +29,7 @@ NEW_LINE: \n
 MAIN_FUNCTION: "@main"
 PRINT: "@print"
 INPUT: "@input"
+RANGE: "@range"
 
 VAR: "$"{identifier}
 CONST: "&"{identifier}
@@ -69,7 +70,6 @@ INDEX_OPEN: "["
 INDEX_CLOSE: "]"
 
 IN: "in"
-RANGE: "range"
 
 // VALUES
 INT: {int}
@@ -134,9 +134,10 @@ TYPE_BOOLEAN: "boolean"
 <parameter>
 
 <type>
+<types>
 <type_values>
 <array_values>
-<array_size>
+<array_index>
 <new_line>
 
 <scope>
@@ -187,25 +188,26 @@ TYPE_BOOLEAN: "boolean"
 
 <fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
-<fn_parameter> ::= VAR COLON <type>;
+<fn_parameter> ::= VAR COLON <types> | CONST COLON <types>;
 
 <parameter_list> ::= SUBGROUP_OPEN <parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
-<parameters> ::= <parameter> | <parameter> COMMA <parameters>;
-<parameter> ::= VAR | <type_values>;
+<parameters> ::= <exp> | <exp> COMMA <parameters>;
+// <parameter> ::= VAR | VAR <array_index> | <type_values>;
 
 <type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
+<types> ::= <type> | <type> INDEX_OPEN INDEX_CLOSE;
 <type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR;
 <array_values> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
-<array_size> ::= INDEX_OPEN INT INDEX_CLOSE | INDEX_OPEN INDEX_CLOSE;
+<array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
 
 <scope> ::= SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE | SCOPE_OPEN <new_line> SCOPE_CLOSE;
 
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
-<command> ::= <attributes>;
+<command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;
 <command> ::= <attribute> OP_ASSIGN <exp>;
 // INPUT / OUTPUT
-<command> ::= PRINT SUBGROUP_OPEN STRING SUBGROUP_CLOSE;
+<command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;
 //<command> ::= <array> OP_ASSIGN <array_values>;
 <command> ::= FUNCTION <parameter_list> | <attribute> OP_ASSIGN FUNCTION <parameter_list>;
@@ -220,8 +222,8 @@ TYPE_BOOLEAN: "boolean"
 <command> ::= <for>;
 <command> ::= RETURN <exp>;
 
-<array> ::= VAR <array_size> | CONST <array_size>;
-<attribute> ::= VAR | CONST | VAR <array_size> | CONST <array_size>;
+<array> ::= VAR <array_index> | CONST <array_index>;
+<attribute> ::= VAR | CONST | VAR <array_index> | CONST <array_index>;
 <attributes> ::= <attribute> | <attribute> COMMA <attributes>;
 
 <if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
@@ -244,7 +246,7 @@ TYPE_BOOLEAN: "boolean"
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9> ;
 <exp9> ::= <op_negate> <exp10> | <exp10>;
-<exp10> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR | VAR | <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+<exp10> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR | VAR | CONST | <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
 <function_call> ::= FUNCTION <parameter_list>;
 
