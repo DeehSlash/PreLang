@@ -17,7 +17,6 @@ public class Symbol {
   
   private String identifier;
   private Type type;
-  private boolean initialized;
   private boolean used;
   private String scope;
   private boolean parameter;
@@ -26,11 +25,10 @@ public class Symbol {
   private boolean matrix;
   private boolean reference;
   
-  public Symbol(String id, Type type, boolean init, boolean used, String scope,
-          boolean param, int pos, boolean array, boolean matrix, boolean ref) {
+  public Symbol(String id, Type type, boolean used, String scope, boolean param,
+          int pos, boolean array, boolean matrix, boolean ref) {
     this.identifier = id;
     this.type = type;
-    this.initialized = init;
     this.used = used;
     this.scope = scope;
     this.parameter = param;
@@ -54,14 +52,6 @@ public class Symbol {
 
   public void setType(Type type) {
     this.type = type;
-  }
-
-  public boolean isInitialized() {
-    return initialized;
-  }
-
-  public void setInitialized(boolean initialized) {
-    this.initialized = initialized;
   }
 
   public boolean hasBeenUsed() {
