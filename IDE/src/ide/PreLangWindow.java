@@ -10,6 +10,7 @@ import gals.Lexico;
 import gals.SemanticError;
 import gals.Semantico;
 import gals.Sintatico;
+import gals.Symbol;
 import gals.SyntaticError;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -20,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -35,6 +37,8 @@ public class PreLangWindow extends javax.swing.JFrame {
     private Lexico lexico;
     private Sintatico sintatico;
     private Semantico semantico;
+    
+    private ArrayList<Symbol> symbolTable;
     
     /**
      * Creates new form PreLangWindow
@@ -304,6 +308,8 @@ public class PreLangWindow extends javax.swing.JFrame {
             consoleContent.append("OK");
         } catch (LexicalError | SyntaticError | SemanticError ex) {
             consoleContent.append(ex.getMessage());
+        } finally {
+          this.symbolTable = semantico.symbolTable;
         }
     }//GEN-LAST:event_btnRodar1ActionPerformed
 
