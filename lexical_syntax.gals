@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -182,13 +182,13 @@ TYPE_BOOLEAN: "boolean"
 <op_arithmetic_higher>
 #Grammar
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
-<main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN #2 <type> #3 <scope> #4 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN #2 <type> #3 <scope> #4; 
+<main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3; 
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN #2 <type> #3 <scope> #4 <new_line>;
+<function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line>;
 
-<fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<fn_parameter_list> ::= SUBGROUP_OPEN #4 <fn_parameters> SUBGROUP_CLOSE #5 | SUBGROUP_OPEN #4 SUBGROUP_CLOSE #5;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
-<fn_parameter> ::= VAR COLON <types> | CONST COLON <types>;
+<fn_parameter> ::= VAR #6 COLON <types> | CONST #6 COLON <types>;
 
 <parameter_list> ::= SUBGROUP_OPEN <parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 <parameters> ::= <exp> | <exp> COMMA <parameters>;
