@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -182,9 +182,9 @@ TYPE_BOOLEAN: "boolean"
 <op_arithmetic_higher>
 #Grammar
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
-<main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line> | MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope>; 
+<main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN #2 <type> #3 <scope> #4 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN #2 <type> #3 <scope> #4; 
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line>;
+<function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN #2 <type> #3 <scope> #4 <new_line>;
 
 <fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
