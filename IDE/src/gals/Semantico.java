@@ -21,10 +21,12 @@ public class Semantico implements Constants
   
   // Temp variables
   private String function;
-  private String variable;
-  private String constant;
+  private String variableOrConstant;
   private Symbol.Type type;
   private String scope = "global";
+  private int position = 0;
+  private boolean array = false;
+  private ArrayList<Symbol> parametersToBeAdded = new ArrayList<>();
     
   /**
    * #1 = FUNCTION
@@ -33,6 +35,9 @@ public class Semantico implements Constants
    * #4 = FUNCTION PARAMETERS (START)
    * #5 = FUNCTION PARAMETERS (END)
    * #6 = VARIABLE / CONSTANT 
+   * #7 = COMMA
+   * #8 = INDEX OPEN
+   * #9 = INDEX CLOSE
    */
     
   public void executeAction(int action, Token token) throws SemanticError
@@ -52,44 +57,105 @@ public class Semantico implements Constants
       
       // TYPE
       case 2:
-        if (mode == Mode.DECLARING_FUNCTION) {
+        if (this.mode == Mode.DECLARING_FUNCTION) {
           this.type = parseType(token.getLexeme());
           this.addFunction();
+          this.addParameters();
+        } else if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS) {
+          this.type = parseType(token.getLexeme());
         }
         break;
         
       // SCOPE END
       case 3:
-        mode = Mode.NONE;
+        this.mode = Mode.NONE;
         this.scope = "global";
         break;
         
       // FUNCTION PARAMETERS (START)
       case 4:
         this.mode = Mode.DECLARING_FUNCTION_PARAMETERS;
+        
         break;
         
       // FUNCTION PARAMETERS (END)
       case 5:
+        this.addParameter();
         this.mode = Mode.DECLARING_FUNCTION;
+        this.position = 0;
         break;
+        
+      // VARIABLE / CONSTANT
+      case 6:
+        if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS) {
+          this.variableOrConstant = token.getLexeme();
+        }
+        break;
+        
+      // COMMA
+      case 7:
+        if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS) {
+          this.addParameter();
+          this.array = false;
+        }
+        
+        break;
+        
+      // INDEX CLOSE
+      case 9:
+        if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS) {
+          this.array = true;
+        }
     }
   }	
   
   private boolean addFunction() throws SemanticError {
-    identifierExists(this.function);
-    System.out.println("TIPO DA FUNÇÃO: " + this.type.toString());
+    if (identifierExists(this.function))
+      throw new SemanticError("Function " + this.function + 
+              " had already been declared before");
+    
     this.symbolTable.add(new Symbol(this.function, this.type, false,
             "global", false, 0, false, false, false));
     
     return true;
   }
   
+  private boolean addParameter() throws SemanticError {
+    if (identifierExists(this.variableOrConstant))
+      throw new SemanticError("Parameter " + this.variableOrConstant +
+              " had already been declared before");
+    
+    this.parametersToBeAdded.add(new Symbol(this.variableOrConstant, this.type, false,
+            this.scope, true, this.position, this.array, false, false));
+    
+    this.position++;
+    
+    return true;
+  }
+  
+  private void addParameters() {
+    for (Symbol symbol : this.parametersToBeAdded) {
+      this.symbolTable.add(symbol);
+    }
+    
+    this.parametersToBeAdded.clear();
+  }
+  
   private boolean identifierExists(String identifier) throws SemanticError {
     for (Symbol symbol : symbolTable) {
-      if(symbol.getIdentifier().equals(identifier))
-        throw new SemanticError("Identifier " + identifier + 
-                " had already been declared before");
+      
+      if (symbol.getIdentifier().equals(identifier)) {
+        
+        // REPEATED PARAMETERS
+        if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS && symbol.isParameter()
+                && symbol.getScope().equals(this.scope))
+          return true;
+        
+        // REPEATED FUNCTIONS
+        else if (this.mode == Mode.DECLARING_FUNCTION && symbol.getScope().equals("global"))
+          return true;
+      }
+      
     }
    
     return false;

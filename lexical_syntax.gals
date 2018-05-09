@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -187,7 +187,7 @@ TYPE_BOOLEAN: "boolean"
 <function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line>;
 
 <fn_parameter_list> ::= SUBGROUP_OPEN #4 <fn_parameters> SUBGROUP_CLOSE #5 | SUBGROUP_OPEN #4 SUBGROUP_CLOSE #5;
-<fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
+<fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA #7 <fn_parameters>;
 <fn_parameter> ::= VAR #6 COLON <types> | CONST #6 COLON <types>;
 
 <parameter_list> ::= SUBGROUP_OPEN <parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
@@ -195,7 +195,7 @@ TYPE_BOOLEAN: "boolean"
 // <parameter> ::= VAR | VAR <array_index> | <type_values>;
 
 <type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
-<types> ::= <type> | <type> INDEX_OPEN INDEX_CLOSE;
+<types> ::= <type> #2 | <type> #2 INDEX_OPEN #8 INDEX_CLOSE #9;
 <type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR;
 <array_values> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
 <array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
