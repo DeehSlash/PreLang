@@ -2,6 +2,7 @@ package ide;
 
 import gals.Symbol;
 import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 public class SymbolTableWindow extends javax.swing.JFrame {
@@ -11,10 +12,11 @@ public class SymbolTableWindow extends javax.swing.JFrame {
     }
 
     public void loadTable(ArrayList<Symbol> symbolTable) {
-      TableModel model = tblSymbol.getModel();
+      DefaultTableModel model = (DefaultTableModel) tblSymbol.getModel();
       int i = 0;
       
       for (Symbol symbol : symbolTable) {
+        model.addRow(new Object[9]);
         model.setValueAt(symbol.getIdentifier(), i, 0);
         model.setValueAt(symbol.getType().toString(), i, 1);
         model.setValueAt(symbol.hasBeenUsed(), i, 2);
@@ -47,16 +49,7 @@ public class SymbolTableWindow extends javax.swing.JFrame {
 
     tblSymbol.setModel(new javax.swing.table.DefaultTableModel(
       new Object [][] {
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null},
-        {null, null, null, null, null, null, null, null, null}
+
       },
       new String [] {
         "ID", "Tipo", "Usado", "Escopo", "Parâmetro", "Posição", "Array", "Matriz", "Referência"

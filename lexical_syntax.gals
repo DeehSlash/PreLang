@@ -203,7 +203,7 @@ TYPE_BOOLEAN: "boolean"
 
 <scope> ::= SCOPE_OPEN #10 <new_line> <command_list> SCOPE_CLOSE #11 | SCOPE_OPEN #10 <new_line> SCOPE_CLOSE #11;
 
-<command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
+<command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
 <command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;
 <command> ::= <attribute> OP_ASSIGN <exp>;
 // INPUT / OUTPUT
@@ -223,7 +223,7 @@ TYPE_BOOLEAN: "boolean"
 <command> ::= RETURN <exp>;
 
 <array> ::= VAR <array_index> | CONST <array_index>;
-<attribute> ::= VAR | CONST | VAR <array_index> | CONST <array_index>;
+<attribute> ::= VAR #12 | CONST #12 | VAR #12 <array_index> | CONST #12 <array_index>;
 <attributes> ::= <attribute> | <attribute> COMMA <attributes>;
 
 <if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;

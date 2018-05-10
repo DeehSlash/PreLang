@@ -8,8 +8,8 @@ public class Semantico implements Constants
 {
   private enum Mode {
     NONE,
-    DECLARING_VARIABLE,
-    DECLARING_CONSTANT,
+    VARIABLE,
+    CONSTANT,
     DECLARING_FUNCTION,
     DECLARING_FUNCTION_PARAMETERS
   }
@@ -44,6 +44,8 @@ public class Semantico implements Constants
    * #9   =   INDEX CLOSE
    * #10  =   SCOPE_OPEN
    * #11  =   SCOPE_CLOSE
+   * #12  =   VARIABLE / CONSTANT (ATTRIBUTE)
+   * #13  =   COMMAND (AFTER)
    */
     
   public void executeAction(int action, Token token) throws SemanticError
@@ -125,6 +127,27 @@ public class Semantico implements Constants
           this.mode = Mode.NONE;
         }
         break;
+        
+      // VARIABLE / CONSTANT (ATTRIBUTE)
+      case 12:
+        this.variableOrConstant = token.getLexeme();
+        this.type = Type.UNDEFINED;
+        if(this.isConstant(this.variableOrConstant))
+          this.mode = Mode.CONSTANT;
+        else
+          this.mode = Mode.VARIABLE;
+        break;
+        
+      // COMMAND (AFTER)
+      case 13:
+        switch(this.mode) {
+          case CONSTANT:
+            addVariable();
+          case VARIABLE:
+            addConstant();
+        }
+        this.mode = Mode.NONE;
+        break;
     }
   }	
   
@@ -158,6 +181,24 @@ public class Semantico implements Constants
     }
     
     this.parametersToBeAdded.clear();
+  }
+  
+  private void addConstant() throws SemanticError {
+    if (identifierExists(this.variableOrConstant))
+      throw new SemanticError("Constant " + this.variableOrConstant +
+              " had already been declared before");
+    
+    this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
+            this.scopeStack.peek(), false, 0, this.array, false, false));
+  }
+  
+  private void addVariable() throws SemanticError {
+    if (identifierExists(this.variableOrConstant))
+      throw new SemanticError("Variable " + this.variableOrConstant +
+              " had already been declared before");
+    
+    this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
+            this.scopeStack.peek(), false, 0, this.array, false, false));
   }
   
   private boolean identifierExists(String identifier) throws SemanticError {
@@ -203,5 +244,17 @@ public class Semantico implements Constants
     }
     
     throw new SemanticError("Expected type, found " + type);
+  }
+  
+  private boolean isConstant(String id) {
+    return id.startsWith("&");
+  }
+  
+  private boolean isVariable(String id) {
+    return id.startsWith("$");
+  }
+  
+  private boolean isFunction(String id) {
+    return id.startsWith("@");
   }
 }
