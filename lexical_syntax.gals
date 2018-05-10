@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -184,7 +184,7 @@ TYPE_BOOLEAN: "boolean"
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3; 
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line>;
+<function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> <new_line>;
 
 <fn_parameter_list> ::= SUBGROUP_OPEN #4 <fn_parameters> SUBGROUP_CLOSE #5 | SUBGROUP_OPEN #4 SUBGROUP_CLOSE #5;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA #7 <fn_parameters>;
@@ -201,7 +201,7 @@ TYPE_BOOLEAN: "boolean"
 <array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
 
-<scope> ::= SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE | SCOPE_OPEN <new_line> SCOPE_CLOSE;
+<scope> ::= SCOPE_OPEN #10 <new_line> <command_list> SCOPE_CLOSE #11 | SCOPE_OPEN #10 <new_line> SCOPE_CLOSE #11;
 
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
 <command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;

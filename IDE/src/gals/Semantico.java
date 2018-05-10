@@ -2,6 +2,7 @@ package gals;
 
 import gals.Symbol.Type;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Semantico implements Constants
 {
@@ -19,25 +20,30 @@ public class Semantico implements Constants
   // Current mode
   private Mode mode = Mode.NONE;
   
+  // Scope Stack
+  Stack<String> scopeStack = new Stack<>();
+  
   // Temp variables
   private String function;
   private String variableOrConstant;
   private Symbol.Type type;
-  private String scope = "global";
   private int position = 0;
   private boolean array = false;
   private ArrayList<Symbol> parametersToBeAdded = new ArrayList<>();
+  private int innerScopeCount = 0;
     
   /**
-   * #1 = FUNCTION
-   * #2 = TYPE
-   * #3 = SCOPE END
-   * #4 = FUNCTION PARAMETERS (START)
-   * #5 = FUNCTION PARAMETERS (END)
-   * #6 = VARIABLE / CONSTANT 
-   * #7 = COMMA
-   * #8 = INDEX OPEN
-   * #9 = INDEX CLOSE
+   * #1   =   FUNCTION
+   * #2   =   TYPE
+   * #3   =   
+   * #4   =   FUNCTION PARAMETERS (START)
+   * #5   =   FUNCTION PARAMETERS (END)
+   * #6   =   VARIABLE / CONSTANT 
+   * #7   =   COMMA
+   * #8   =   INDEX OPEN
+   * #9   =   INDEX CLOSE
+   * #10  =   SCOPE_OPEN
+   * #11  =   SCOPE_CLOSE
    */
     
   public void executeAction(int action, Token token) throws SemanticError
@@ -48,10 +54,9 @@ public class Semantico implements Constants
       
       // FUNCTION
       case 1:
-        if(this.scope.equals("global")) {
+        if(this.scopeStack.empty()) {
           this.function = token.getLexeme();
           this.mode = Mode.DECLARING_FUNCTION;
-          this.scope = this.function; 
         }
         break;
       
@@ -65,13 +70,7 @@ public class Semantico implements Constants
           this.type = parseType(token.getLexeme());
         }
         break;
-        
-      // SCOPE END
-      case 3:
-        this.mode = Mode.NONE;
-        this.scope = "global";
-        break;
-        
+
       // FUNCTION PARAMETERS (START)
       case 4:
         this.mode = Mode.DECLARING_FUNCTION_PARAMETERS;
@@ -106,6 +105,26 @@ public class Semantico implements Constants
         if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS) {
           this.array = true;
         }
+        break;
+      
+      // SCOPE OPEN
+      case 10:
+        if (scopeStack.empty()) {
+          scopeStack.push(this.function);
+        } else {
+          scopeStack.push(this.function + "-" + Integer.toString(innerScopeCount));
+          this.innerScopeCount++;
+        }
+        break;
+      
+      // SCOPE CLOSE
+      case 11:
+        scopeStack.pop();
+        if (scopeStack.empty()) {
+          this.innerScopeCount = 0;
+          this.mode = Mode.NONE;
+        }
+        break;
     }
   }	
   
@@ -126,7 +145,7 @@ public class Semantico implements Constants
               " had already been declared before");
     
     this.parametersToBeAdded.add(new Symbol(this.variableOrConstant, this.type, false,
-            this.scope, true, this.position, this.array, false, false));
+            this.function, true, this.position, this.array, false, false));
     
     this.position++;
     
@@ -148,7 +167,7 @@ public class Semantico implements Constants
         
         // REPEATED PARAMETERS
         if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS && symbol.isParameter()
-                && symbol.getScope().equals(this.scope))
+                && symbol.getScope().equals(this.function))
           return true;
         
         // REPEATED FUNCTIONS
