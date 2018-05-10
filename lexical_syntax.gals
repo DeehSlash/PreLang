@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -204,8 +204,8 @@ TYPE_BOOLEAN: "boolean"
 <scope> ::= SCOPE_OPEN #10 <new_line> <command_list> SCOPE_CLOSE #11 | SCOPE_OPEN #10 <new_line> SCOPE_CLOSE #11;
 
 <command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
-<command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;
-<command> ::= <attribute> OP_ASSIGN <exp>;
+<command> ::= #14 <attributes> | #14 <attributes> OP_ASSIGN <parameters>;
+<command> ::= #14 <attribute> OP_ASSIGN <exp>;
 // INPUT / OUTPUT
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;

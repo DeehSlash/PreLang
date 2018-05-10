@@ -11,7 +11,8 @@ public class Semantico implements Constants
     VARIABLE,
     CONSTANT,
     DECLARING_FUNCTION,
-    DECLARING_FUNCTION_PARAMETERS
+    DECLARING_FUNCTION_PARAMETERS,
+    ATTRIBUTE_ASSIGNMENT
   }
   
   // Symbols Table
@@ -46,6 +47,7 @@ public class Semantico implements Constants
    * #11  =   SCOPE_CLOSE
    * #12  =   VARIABLE / CONSTANT (ATTRIBUTE)
    * #13  =   COMMAND (AFTER)
+   * #14  =   ATTRIBUTES ASSIGNMENT COMMAND
    */
     
   public void executeAction(int action, Token token) throws SemanticError
@@ -132,21 +134,23 @@ public class Semantico implements Constants
       case 12:
         this.variableOrConstant = token.getLexeme();
         this.type = Type.UNDEFINED;
-        if(this.isConstant(this.variableOrConstant))
-          this.mode = Mode.CONSTANT;
-        else
-          this.mode = Mode.VARIABLE;
         break;
         
       // COMMAND (AFTER)
       case 13:
-        switch(this.mode) {
-          case CONSTANT:
-            addVariable();
-          case VARIABLE:
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT) {
+          if(this.isConstant(this.variableOrConstant))
             addConstant();
+          else
+            addVariable(); 
         }
+   
         this.mode = Mode.NONE;
+        break;
+        
+      // ATTRIBUTES ASSIGNMENT COMMAND
+      case 14:
+        this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
         break;
     }
   }	
