@@ -6,6 +6,7 @@ import java.util.Stack;
 
 public class Semantico implements Constants
 {
+  
   private enum Mode {
     NONE,
     VARIABLE,
@@ -51,6 +52,12 @@ public class Semantico implements Constants
    * #15  =   ARRAY INDEX
    */
     
+  /**
+   * Executes the current semantic action
+   * @param action Semantic action
+   * @param token Current token
+   * @throws SemanticError 
+   */
   public void executeAction(int action, Token token) throws SemanticError
   {
     System.out.println("#" + action + " - " + token.getLexeme());
@@ -165,6 +172,11 @@ public class Semantico implements Constants
     }
   }	
   
+  /**
+   * Adds a function to the Symbol Table
+   * @return True if the operation was successful
+   * @throws SemanticError If the function had already been declared
+   */
   private boolean addFunction() throws SemanticError {
     if (functionExists(this.function))
       throw new SemanticError("Function " + this.function + 
@@ -176,6 +188,11 @@ public class Semantico implements Constants
     return true;
   }
   
+  /**
+   * Adds a parameter to the temporary array
+   * @return True if the operation was successful
+   * @throws SemanticError If the parameter had already been declared
+   */
   private boolean addParameter() throws SemanticError {
     if (parameterExists(this.variableOrConstant))
       throw new SemanticError("Parameter " + this.variableOrConstant +
@@ -189,6 +206,9 @@ public class Semantico implements Constants
     return true;
   }
   
+  /**
+   * Adds all parameters to the Symbol Table
+   */
   private void addParameters() {
     for (Symbol symbol : this.parametersToBeAdded) {
       this.symbolTable.add(symbol);
@@ -197,18 +217,29 @@ public class Semantico implements Constants
     this.parametersToBeAdded.clear();
   }
   
-  private void addConstant() throws SemanticError {
+  /**
+   * Adds a constant to the Symbol Table
+   */
+  private void addConstant() {
     if (!identifierExists(this.variableOrConstant))
       this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
             this.scopeStack.peek(), false, 0, this.array, false, false));
   }
   
-  private void addVariable() throws SemanticError {
+  /**
+   * Adds a variable to the Symbol Table
+   */
+  private void addVariable() {
     if (!identifierExists(this.variableOrConstant))
       this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
             this.scopeStack.peek(), false, 0, this.array, false, false));
   }
   
+  /**
+   * Checks if the given function exists
+   * @param name Function name to check
+   * @return True if the function exists in the global scope
+   */
   private boolean functionExists(String name) {
     for (Symbol symbol : symbolTable) {
       if (symbol.getIdentifier().equals(name) && symbol.isFunction())
@@ -218,6 +249,11 @@ public class Semantico implements Constants
     return false;
   }
   
+  /**
+   * Checks if the given parameter had already been declared
+   * @param name Parameter name to check
+   * @return True if the parameter had already been declared
+   */
   private boolean parameterExists(String name) {
     for (Symbol symbol : parametersToBeAdded) {
       if (symbol.getIdentifier().equals(name))
@@ -227,6 +263,12 @@ public class Semantico implements Constants
     return false;
   }
 
+  /**
+   * Checks if the given identifier exists in the current scope or in
+   * the upper scopes
+   * @param name Identifier to check
+   * @return True if the identifier exists in any of the current scopes
+   */
   private boolean identifierExists(String name) {
     for (int i = scopeStack.size() - 1; i >= 0; i--) {
       String scope = scopeStack.get(i);
@@ -239,6 +281,12 @@ public class Semantico implements Constants
     return false;
   }
   
+  /**
+   * Parses type from string
+   * @param type String to be parsed
+   * @return Type The parsed type
+   * @throws SemanticError If the type couldn't be parsed
+   */
   private Type parseType(String type) throws SemanticError {
     switch (type) {
       case "void":
@@ -264,14 +312,29 @@ public class Semantico implements Constants
     throw new SemanticError("Expected type, found " + type);
   }
   
+  /**
+   * Checks if the given identifier is a constant
+   * @param id Identifier to check
+   * @return True if the identifier is a constant
+   */
   private boolean isConstant(String id) {
     return id.startsWith("&");
   }
   
+  /**
+   * Checks if the given identifier is a variable
+   * @param id Identifier to check
+   * @return True if the identifier is a variable
+   */
   private boolean isVariable(String id) {
     return id.startsWith("$");
   }
   
+  /**
+   * Checks if the given identifier is a function
+   * @param id Identifier to check
+   * @return True if the identifier is a function
+   */
   private boolean isFunction(String id) {
     return id.startsWith("@");
   }
