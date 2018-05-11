@@ -2,6 +2,7 @@ package gals;
 
 import gals.Symbol.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Stack;
 
 public class Semantico implements Constants
@@ -19,6 +20,9 @@ public class Semantico implements Constants
   // Symbols Table
   public ArrayList<Symbol> symbolTable = new ArrayList<>();
   
+  // Semantic Table
+  public Stack<Integer> semanticTable = new Stack<>();
+  
   // Current mode
   private Mode mode = Mode.NONE;
   
@@ -33,6 +37,7 @@ public class Semantico implements Constants
   private boolean array = false;
   private ArrayList<Symbol> parametersToBeAdded = new ArrayList<>();
   private int innerScopeCount = 0;
+  private int parameterCount = 0;
     
   /**
    * #1   =   FUNCTION
@@ -48,8 +53,9 @@ public class Semantico implements Constants
    * #11  =   SCOPE_CLOSE
    * #12  =   VARIABLE / CONSTANT (ATTRIBUTE)
    * #13  =   COMMAND (AFTER)
-   * #14  =   ATTRIBUTES ASSIGNMENT COMMAND
+   * #14  =   ATTRIBUTES ASSIGNMENT COMMAND (END)
    * #15  =   ARRAY INDEX
+   * #16  =   ATTRIBUTE ASSIGNMENT COMMAND (START)
    */
     
   /**
@@ -91,14 +97,17 @@ public class Semantico implements Constants
         
       // FUNCTION PARAMETERS (END)
       case 5:
-        this.addParameter();
+        if(this.parameterCount > 0)
+          this.addParameter();
         this.mode = Mode.DECLARING_FUNCTION;
         this.position = 0;
+        this.parameterCount = 0;
         break;
         
       // VARIABLE / CONSTANT
       case 6:
         if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS) {
+          this.parameterCount++;
           this.variableOrConstant = token.getLexeme();
         }
         break;
@@ -140,6 +149,7 @@ public class Semantico implements Constants
         
       // VARIABLE / CONSTANT (ATTRIBUTE)
       case 12:
+        System.out.println("VARIABLE / CONSTANT: " + token.getLexeme());
         this.variableOrConstant = token.getLexeme();
         this.type = Type.UNDEFINED;
         break;
@@ -162,12 +172,79 @@ public class Semantico implements Constants
       // ATTRIBUTES ASSIGNMENT COMMAND
       case 14:
         this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
+        this.type = this.resolveExpression();
         break;
         
       // ARRAY INDEX
       case 15:
         if (this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
           this.array = true;
+        break;
+        
+      // ATTRIBUTE ASSIGNMENT COMMAND (START)
+      case 16:
+        System.out.println("ATTRIBUTE ASSIGNMENT COMMAND");
+        this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
+        break;
+        
+        
+      // EXPRESSION TYPES
+        
+      // INT
+      case 50:
+        this.semanticTable.push(0);
+        break;
+        
+      // FLOAT
+      case 51:
+        this.semanticTable.push(1);
+        break;
+        
+      // CHAR
+      case 52:
+        this.semanticTable.push(2);
+        break;
+        
+      // STRING
+      case 53:
+        this.semanticTable.push(3);
+        break;
+        
+      // BOOLEAN
+      case 54:
+        this.semanticTable.push(4);
+        break;
+        
+      // VARIABLE / CONST
+      case 55:
+        this.semanticTable.push(this.getType(token.getLexeme()));
+        break;
+        
+      // EXPRESSION OPERATORS
+      
+      // ADD
+      case 60:
+        this.semanticTable.push(0);
+        break;
+        
+      // SUB
+      case 61:
+        this.semanticTable.push(1);
+        break;
+        
+      // MULT
+      case 62:
+        this.semanticTable.push(2);
+        break;
+        
+      // DIV
+      case 63:
+        this.semanticTable.push(3);
+        break;
+        
+      // RELATIONAL
+      case 64:
+        this.semanticTable.push(4);
         break;
     }
   }	
@@ -230,9 +307,11 @@ public class Semantico implements Constants
    * Adds a variable to the Symbol Table
    */
   private void addVariable() {
-    if (!identifierExists(this.variableOrConstant))
+    if (!identifierExists(this.variableOrConstant)) {
+      System.out.println("Nome: " + this.variableOrConstant + "; Tipo: " + this.type);
       this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
             this.scopeStack.peek(), false, 0, this.array, false, false));
+    }
   }
   
   /**
@@ -270,11 +349,15 @@ public class Semantico implements Constants
    * @return True if the identifier exists in any of the current scopes
    */
   private boolean identifierExists(String name) {
-    for (int i = scopeStack.size() - 1; i >= 0; i--) {
-      String scope = scopeStack.get(i);
+    Iterator iterator = scopeStack.iterator();
+
+    while (iterator.hasNext()) {
+      String scope = (String) iterator.next();
       for (Symbol symbol : symbolTable) {
-        if (symbol.getIdentifier().equals(name) && symbol.getScope().equals(scope))
-          return true;
+        if(symbol.getIdentifier() != null) {
+          if (symbol.getIdentifier().equals(name))
+            return true;
+        }
       }
     }
     
@@ -337,5 +420,62 @@ public class Semantico implements Constants
    */
   private boolean isFunction(String id) {
     return id.startsWith("@");
+  }
+  
+  private int getType(String name) throws SemanticError {
+    for (int i = scopeStack.size() - 1; i >= 0; i--) {
+      String scope = scopeStack.get(i);
+      for (Symbol symbol : symbolTable) {
+        if (symbol.getIdentifier().equals(name) && symbol.getScope().equals(scope))
+          switch (symbol.getType()) {
+            case INT:
+              return 0;
+            case FLOAT:
+              return 1;
+            case CHAR:
+              return 2;
+            case STRING:
+              return 3;
+            case BOOLEAN:
+              return 4;
+          }
+      }
+    }
+    
+    throw new SemanticError("Variable not declared");
+  }
+  
+  private Type resolveExpression() throws SemanticError {
+    System.out.println("Resolve Expression");
+    while (semanticTable.size() > 1) {
+      int type1 = semanticTable.pop();
+      int operator = semanticTable.pop();
+      int type2 = semanticTable.pop();
+      
+      int result = SemanticTable.resultType(type1, type2, operator);
+      
+      if (result != SemanticTable.ERR) {
+        semanticTable.push(result);
+      } else {
+        throw new SemanticError("Invalid expression");
+      }
+    }
+    
+    int lastType = semanticTable.pop();
+    
+    switch(lastType) {
+      case 0:
+        return Type.INT;
+      case 1:
+        return Type.FLOAT;
+      case 2:
+        return Type.CHAR;
+      case 3:
+        return Type.STRING;
+      case 4:
+        return Type.BOOLEAN;
+    }
+    
+    return Type.UNDEFINED;
   }
 }

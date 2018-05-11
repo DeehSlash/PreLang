@@ -216,8 +216,8 @@ TYPE_BOOLEAN: "boolean"
 // Commands
 <command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
 // Assignments
-<command> ::= <attributes> #14 | <attributes> OP_ASSIGN <parameters> #14;
-<command> ::= <attribute> OP_ASSIGN <exp> #14;
+<command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;
+<command> ::= <attribute> #16 OP_ASSIGN <exp> #14;
 // Input / Output
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;
@@ -254,25 +254,25 @@ TYPE_BOOLEAN: "boolean"
 <range_types> ::= INT | INT COMMA INT | INT COMMA INT COMMA INT;
 
 // Expressions
-<exp>  ::= <exp> OP_OR <exp1> | <exp1>;
-<exp1> ::= <exp1> OP_AND <exp2> | <exp2>;
+<exp>  ::= <exp> OP_OR #64 <exp1> | <exp1>;
+<exp1> ::= <exp1> OP_AND #65 <exp2> | <exp2>;
 <exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
 <exp3> ::= <exp3> OP_BW_XOR <exp4> | <exp4>;
 <exp4> ::= <exp4> OP_BW_AND <exp5> | <exp5>;
-<exp5> ::= <exp5> <op_relational> <exp6> | <exp6>;
+<exp5> ::= <exp5> <op_relational> #64 <exp6> | <exp6>;
 <exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9>;
 <exp9> ::= <op_negate> <exp10> | <exp10>;
-<exp10> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR | VAR | CONST | <exp11>;
+<exp10> ::= INT #50 | FLOAT #51 | BOOLEAN #54 | BINARY | HEXADECIMAL | STRING #53 | CHAR #52 | VAR #55 | CONST #55 | <exp11>;
 <exp11> ::= <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
 // Operators
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
 <op_bitwise> ::= OP_BW_LS | OP_BW_RS;
-<op_arithmetic_low> ::= OP_ADD | OP_SUB;
-<op_arithmetic_high> ::= OP_MULT | OP_DIV | OP_MOD;
+<op_arithmetic_low> ::= OP_ADD #60 | OP_SUB #61;
+<op_arithmetic_high> ::= OP_MULT #62 | OP_DIV #63 | OP_MOD;
 
 // Expression test
 // -$x + 8.8 - !$x * 2 / ~$y % 3 << 7 != $y >> 3 || ($x <= 3 && $y > 8) | $p & ($h ^ $g)
