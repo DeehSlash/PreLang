@@ -198,59 +198,70 @@ public class Semantico implements Constants
         
       // INT
       case 50:
-        this.semanticTable.push(0);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(0);
         break;
         
       // FLOAT
       case 51:
-        this.semanticTable.push(1);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(1);
         break;
         
       // CHAR
       case 52:
-        this.semanticTable.push(2);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(2);
         break;
         
       // STRING
       case 53:
-        this.semanticTable.push(3);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(3);
         break;
         
       // BOOLEAN
       case 54:
-        this.semanticTable.push(4);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(4);
         break;
         
       // VARIABLE / CONST
       case 55:
-        this.semanticTable.push(this.getType(token.getLexeme()));
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(this.getType(token.getLexeme()));
         break;
         
       // EXPRESSION OPERATORS
       
       // ADD
       case 60:
-        this.semanticTable.push(0);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(0);
         break;
         
       // SUB
       case 61:
-        this.semanticTable.push(1);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(1);
         break;
         
       // MULT
       case 62:
-        this.semanticTable.push(2);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(2);
         break;
         
       // DIV
       case 63:
-        this.semanticTable.push(3);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(3);
         break;
         
       // RELATIONAL
       case 64:
-        this.semanticTable.push(4);
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.semanticTable.push(4);
         break;
     }
   }	
