@@ -14,7 +14,8 @@ public class Semantico implements Constants
     CONSTANT,
     DECLARING_FUNCTION,
     DECLARING_FUNCTION_PARAMETERS,
-    ATTRIBUTE_ASSIGNMENT
+    ATTRIBUTE_ASSIGNMENT,
+    ATTRIBUTE_DECLARATION
   }
   
   // Symbols Table
@@ -56,6 +57,7 @@ public class Semantico implements Constants
    * #14  =   ATTRIBUTES ASSIGNMENT COMMAND (END)
    * #15  =   ARRAY INDEX
    * #16  =   ATTRIBUTE ASSIGNMENT COMMAND (START)
+   * #17  =   ATTRIBUTE DECLARATION COMMAND
    */
     
   /**
@@ -156,7 +158,7 @@ public class Semantico implements Constants
         
       // COMMAND (AFTER)
       case 13:
-        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT) {
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT || this.mode == Mode.ATTRIBUTE_DECLARATION) {
           if(this.isConstant(this.variableOrConstant))
             addConstant();
           else
@@ -184,6 +186,11 @@ public class Semantico implements Constants
       // ATTRIBUTE ASSIGNMENT COMMAND (START)
       case 16:
         this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
+        break;
+        
+      // ATTRIBUTE DECLARATION COMMAND
+      case 17:
+        this.mode = Mode.ATTRIBUTE_DECLARATION;
         break;
         
         
@@ -439,6 +446,8 @@ public class Semantico implements Constants
               return 3;
             case BOOLEAN:
               return 4;
+            case UNDEFINED:
+              throw new SemanticError("Variable " + name + " was not initialized");
           }
         }
       }
