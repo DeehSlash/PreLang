@@ -18,6 +18,8 @@
   $msg = "Olá mundo!"
   $verdadeiro = true
 
+  $vaiDarRuim = "Somando string com " + 1
+
   # Retorno
   return 1
 }
