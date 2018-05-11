@@ -131,23 +131,25 @@ TYPE_BOOLEAN: "boolean"
 
 <parameter_list>
 <parameters>
-<parameter>
 
 <type>
 <types>
 <type_values>
+
+<array>
 <array_values>
 <array_index>
+
 <new_line>
 
+<function_call>
 <scope>
 
 <command_list>
 <command>
 
-<array>
-<attribute>
 <attributes>
+<attribute>
 
 <if>
 <else>
@@ -171,8 +173,7 @@ TYPE_BOOLEAN: "boolean"
 <exp8>
 <exp9>
 <exp10>
-
-<function_call>
+<exp11>
 
 <op_relational>
 <op_negate>
@@ -181,35 +182,46 @@ TYPE_BOOLEAN: "boolean"
 <op_arithmetic_high>
 <op_arithmetic_higher>
 #Grammar
+// Main structure
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3; 
 <function_list> ::= <function> | <function> <function_list>;
 <function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> <new_line>;
 
+// Function parameters
 <fn_parameter_list> ::= SUBGROUP_OPEN #4 <fn_parameters> SUBGROUP_CLOSE #5 | SUBGROUP_OPEN #4 SUBGROUP_CLOSE #5;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA #7 <fn_parameters>;
 <fn_parameter> ::= VAR #6 COLON <types> | CONST #6 COLON <types>;
 
+// Parameters list
 <parameter_list> ::= SUBGROUP_OPEN <parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 <parameters> ::= <exp> | <exp> COMMA <parameters>;
-// <parameter> ::= VAR | VAR <array_index> | <type_values>;
 
+// Types
 <type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
 <types> ::= <type> #2 | <type> #2 INDEX_OPEN #8 INDEX_CLOSE #9;
 <type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR;
+
+// Arrays
+<array> ::= VAR <array_index> | CONST <array_index>;
 <array_values> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
 <array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
+
+// Misc
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
 
+<function_call> ::= FUNCTION <parameter_list>;
 <scope> ::= SCOPE_OPEN #10 <new_line> <command_list> SCOPE_CLOSE #11 | SCOPE_OPEN #10 <new_line> SCOPE_CLOSE #11;
 
+// Commands
 <command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
-<command> ::= #14 <attributes> | #14 <attributes> OP_ASSIGN <parameters>;
-<command> ::= #14 <attribute> OP_ASSIGN <exp>;
-// INPUT / OUTPUT
+// Assignments
+<command> ::= <attributes> #14 | <attributes> OP_ASSIGN <parameters> #14;
+<command> ::= <attribute> OP_ASSIGN <exp> #14;
+// Input / Output
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;
-//<command> ::= <array> OP_ASSIGN <array_values>;
+// Function call
 <command> ::= FUNCTION <parameter_list> | <attribute> OP_ASSIGN FUNCTION <parameter_list>;
 // Conditional
 <command> ::= <if>;
@@ -220,20 +232,26 @@ TYPE_BOOLEAN: "boolean"
 <command> ::= <while>;
 <command> ::= <do_while>;
 <command> ::= <for>;
+// Special
 <command> ::= RETURN <exp>;
 
-<array> ::= VAR <array_index> | CONST <array_index>;
-<attribute> ::= VAR #12 | CONST #12 | VAR #12 <array_index> | CONST #12 <array_index>;
+// Attributes
 <attributes> ::= <attribute> | <attribute> COMMA <attributes>;
+<attribute> ::= VAR #12 | CONST #12 | VAR #12 <array_index> #15 | CONST #12 <array_index> #15;
 
+// Conditional
 <if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
 <else> ::= ELSE <scope>;
 <elsif> ::= <single_elsif> | <single_elsif> <elsif>;
 <single_elsif> ::= ELSIF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
 
+// Loop
 <while> ::= WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
 <do_while> ::= DO <scope> WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <for>  ::=  FOR SUBGROUP_OPEN <range> SUBGROUP_CLOSE <scope>;
+//range for loop
+<range> ::= <attribute> IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
+<range_types> ::= INT | INT COMMA INT | INT COMMA INT COMMA INT;
 
 // Expressions
 <exp>  ::= <exp> OP_OR <exp1> | <exp1>;
@@ -244,16 +262,12 @@ TYPE_BOOLEAN: "boolean"
 <exp5> ::= <exp5> <op_relational> <exp6> | <exp6>;
 <exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
-<exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9> ;
+<exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9>;
 <exp9> ::= <op_negate> <exp10> | <exp10>;
-<exp10> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR | VAR | CONST | <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+<exp10> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR | VAR | CONST | <exp11>;
+<exp11> ::= <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 
-<function_call> ::= FUNCTION <parameter_list>;
-
-//range for loop
-<range> ::= <attribute> IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
-<range_types> ::= INT | INT COMMA  INT | INT COMMA INT COMMA INT;
-// Operations
+// Operators
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
 <op_bitwise> ::= OP_BW_LS | OP_BW_RS;

@@ -48,6 +48,7 @@ public class Semantico implements Constants
    * #12  =   VARIABLE / CONSTANT (ATTRIBUTE)
    * #13  =   COMMAND (AFTER)
    * #14  =   ATTRIBUTES ASSIGNMENT COMMAND
+   * #15  =   ARRAY INDEX
    */
     
   public void executeAction(int action, Token token) throws SemanticError
@@ -145,12 +146,21 @@ public class Semantico implements Constants
             addVariable(); 
         }
    
+        // Reset temp variables
         this.mode = Mode.NONE;
+        this.array = false;
+        this.type = Type.UNDEFINED;
         break;
         
       // ATTRIBUTES ASSIGNMENT COMMAND
       case 14:
         this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
+        break;
+        
+      // ARRAY INDEX
+      case 15:
+        if (this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+          this.array = true;
         break;
     }
   }	
