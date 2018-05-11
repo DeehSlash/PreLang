@@ -216,7 +216,7 @@ TYPE_BOOLEAN: "boolean"
 // Commands
 <command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
 // Assignments
-<command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;
+<command> ::= <attributes> #17 | <attributes> OP_ASSIGN <parameters>;
 <command> ::= <attribute> #16 OP_ASSIGN <exp> #14;
 // Input / Output
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
