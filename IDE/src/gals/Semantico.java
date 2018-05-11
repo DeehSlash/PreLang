@@ -66,7 +66,7 @@ public class Semantico implements Constants
    */
   public void executeAction(int action, Token token) throws SemanticError
   {
-    System.out.println("#" + action + " - " + token.getLexeme());
+    // System.out.println("#" + action + " - " + token.getLexeme());
     
     switch (action) {
       
@@ -140,8 +140,9 @@ public class Semantico implements Constants
       
       // SCOPE CLOSE
       case 11:
-        scopeStack.pop();
+        String temp = scopeStack.pop();
         if (scopeStack.empty()) {
+          this.checkForNotUsed(temp);
           this.innerScopeCount = 0;
           this.mode = Mode.NONE;
         }
@@ -149,7 +150,6 @@ public class Semantico implements Constants
         
       // VARIABLE / CONSTANT (ATTRIBUTE)
       case 12:
-        System.out.println("VARIABLE / CONSTANT: " + token.getLexeme());
         this.variableOrConstant = token.getLexeme();
         this.type = Type.UNDEFINED;
         break;
@@ -183,7 +183,6 @@ public class Semantico implements Constants
         
       // ATTRIBUTE ASSIGNMENT COMMAND (START)
       case 16:
-        System.out.println("ATTRIBUTE ASSIGNMENT COMMAND");
         this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
         break;
         
@@ -308,7 +307,6 @@ public class Semantico implements Constants
    */
   private void addVariable() {
     if (!identifierExists(this.variableOrConstant)) {
-      System.out.println("Nome: " + this.variableOrConstant + "; Tipo: " + this.type);
       this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
             this.scopeStack.peek(), false, 0, this.array, false, false));
     }
@@ -355,7 +353,7 @@ public class Semantico implements Constants
       String scope = (String) iterator.next();
       for (Symbol symbol : symbolTable) {
         if(symbol.getIdentifier() != null) {
-          if (symbol.getIdentifier().equals(name))
+          if (symbol.getIdentifier().equals(name) && symbol.getScope().startsWith(scope))
             return true;
         }
       }
@@ -423,10 +421,13 @@ public class Semantico implements Constants
   }
   
   private int getType(String name) throws SemanticError {
-    for (int i = scopeStack.size() - 1; i >= 0; i--) {
-      String scope = scopeStack.get(i);
+    Iterator iterator = scopeStack.iterator();
+    String scope = "";
+    while (iterator.hasNext()) {
+      scope = (String) iterator.next();
       for (Symbol symbol : symbolTable) {
-        if (symbol.getIdentifier().equals(name) && symbol.getScope().equals(scope))
+        if (symbol.getIdentifier().equals(name) && symbol.getScope().equals(scope)) {
+          symbol.setUsed(true);
           switch (symbol.getType()) {
             case INT:
               return 0;
@@ -439,14 +440,14 @@ public class Semantico implements Constants
             case BOOLEAN:
               return 4;
           }
+        }
       }
     }
     
-    throw new SemanticError("Variable not declared");
+    throw new SemanticError("Variable " + name + " not declared in scope " + scope);
   }
   
   private Type resolveExpression() throws SemanticError {
-    System.out.println("Resolve Expression");
     while (semanticTable.size() > 1) {
       int type1 = semanticTable.pop();
       int operator = semanticTable.pop();
@@ -477,5 +478,13 @@ public class Semantico implements Constants
     }
     
     return Type.UNDEFINED;
+  }
+  
+  private void checkForNotUsed(String scope) {
+    for (Symbol symbol : symbolTable) {
+      if(symbol.getScope().startsWith(scope) && !symbol.hasBeenUsed()) {
+        System.out.println("Symbol " + symbol.getIdentifier() + " not used in scope " + scope);
+      }
+    }
   }
 }
