@@ -166,7 +166,7 @@ public class Semantico implements Constants
   }	
   
   private boolean addFunction() throws SemanticError {
-    if (identifierExists(this.function))
+    if (functionExists(this.function))
       throw new SemanticError("Function " + this.function + 
               " had already been declared before");
     
@@ -177,7 +177,7 @@ public class Semantico implements Constants
   }
   
   private boolean addParameter() throws SemanticError {
-    if (identifierExists(this.variableOrConstant))
+    if (parameterExists(this.variableOrConstant))
       throw new SemanticError("Parameter " + this.variableOrConstant +
               " had already been declared before");
     
@@ -198,40 +198,44 @@ public class Semantico implements Constants
   }
   
   private void addConstant() throws SemanticError {
-    if (identifierExists(this.variableOrConstant))
-      throw new SemanticError("Constant " + this.variableOrConstant +
-              " had already been declared before");
-    
-    this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
+    if (!identifierExists(this.variableOrConstant))
+      this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
             this.scopeStack.peek(), false, 0, this.array, false, false));
   }
   
   private void addVariable() throws SemanticError {
-    if (identifierExists(this.variableOrConstant))
-      throw new SemanticError("Variable " + this.variableOrConstant +
-              " had already been declared before");
-    
-    this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
+    if (!identifierExists(this.variableOrConstant))
+      this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
             this.scopeStack.peek(), false, 0, this.array, false, false));
   }
   
-  private boolean identifierExists(String identifier) throws SemanticError {
+  private boolean functionExists(String name) {
     for (Symbol symbol : symbolTable) {
-      
-      if (symbol.getIdentifier().equals(identifier)) {
-        
-        // REPEATED PARAMETERS
-        if (this.mode == Mode.DECLARING_FUNCTION_PARAMETERS && symbol.isParameter()
-                && symbol.getScope().equals(this.function))
-          return true;
-        
-        // REPEATED FUNCTIONS
-        else if (this.mode == Mode.DECLARING_FUNCTION && symbol.getScope().equals("global"))
+      if (symbol.getIdentifier().equals(name) && symbol.isFunction())
+        return true;
+    }
+    
+    return false;
+  }
+  
+  private boolean parameterExists(String name) {
+    for (Symbol symbol : parametersToBeAdded) {
+      if (symbol.getIdentifier().equals(name))
+        return true;
+    }
+    
+    return false;
+  }
+
+  private boolean identifierExists(String name) {
+    for (int i = scopeStack.size() - 1; i >= 0; i--) {
+      String scope = scopeStack.get(i);
+      for (Symbol symbol : symbolTable) {
+        if (symbol.getIdentifier().equals(name) && symbol.getScope().equals(scope))
           return true;
       }
-      
     }
-   
+    
     return false;
   }
   
