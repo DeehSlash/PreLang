@@ -8,7 +8,7 @@
 # implementação expressoes com suporte a vetores
 
  **A[i + 1] = B[x - 1] + c[z - 2];**
-
+exemplo proc bip
 + 1 LD I
     ADDI 1
 + 2 STO 1002
@@ -28,7 +28,7 @@
 + 14 LD 1002
 + 15 STO $INDR
 + 16 LD 1000
-+ 17 STOV A 
++ 17 STOV A
 
 
 
