@@ -3,6 +3,7 @@ package gals;
 import gals.Symbol.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 public class Semantico implements Constants
@@ -17,6 +18,11 @@ public class Semantico implements Constants
     ATTRIBUTE_ASSIGNMENT,
     ATTRIBUTE_DECLARATION
   }
+  
+  
+    Stack escoposFuncao = new Stack(), expressao = new Stack();
+    public List<Simbolo> TabelaSimbolos = new ArrayList();
+    int pos = 0, indiceVariavel = 0, idEscopo = 0;
   
   // Symbols Table
   public ArrayList<Symbol> symbolTable = new ArrayList<>();
@@ -265,6 +271,40 @@ public class Semantico implements Constants
         break;
     }
   }	
+  
+  
+//detecta se a variavel a ser atribuido o valor foi declarada
+    public void detectaVariavelAtribuicaoDireta(String t) throws SemanticError {
+        int in = 0, inachado = 0;
+        Simbolo sim = null;
+        for (Simbolo i : TabelaSimbolos) {
+            if (i.getId().equals(t) && i.getEscopo() == (int) escoposFuncao.peek()) {
+                sim = i;
+                expressao.push(i.getTipo());
+                inachado = in;
+                break;
+
+            } else if (i.getId().equals(t)) {
+                if (sim == null) {
+                    sim = new Simbolo(t, (int) escoposFuncao.peek());
+                    inachado = in;
+                } else {
+                    if (sim.escopo < i.getEscopo()) {
+                        sim = i;
+                        inachado = in;
+                    }
+                }
+
+            }
+            in++;
+        }
+        if (sim == null) {
+            throw new SemanticError("A variável '" + t + "' utilizada não foi declarada");
+        }
+        expressao.push(sim.getTipo());
+        TabelaSimbolos.get(inachado).setUsada(true);
+        indiceVariavel = in - 1;
+    }  
   
   /**
    * Adds a function to the Symbol Table

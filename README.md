@@ -8,7 +8,7 @@
 # implementação expressoes com suporte a vetores
 
  **A[i + 1] = B[x - 1] + c[z - 2];**
-exemplo proc bip
+exemplo proc bipa
 + 1 LD I
     ADDI 1
 + 2 STO 1002
