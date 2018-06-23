@@ -1,29 +1,14 @@
-#!
-  Aplicacao de exemplo
-  Ponto de entrada
-!#
 @add () -> int {
 	$c = 1
   $a = 1 + $c
 }
 
 @main ($args: string[], $argc: int) -> int {
-  # Definição de variáveis e cálculos
   $a = 3
   $b = 2.5
   $c = $a + $b
-  $d
   &PI = 3.14
-  $e = 1 + $d
-  $msg = "Olá mundo!"
+  $msg = "Ol� mundo!"
   $verdadeiro = true
-
-  $vaiDarRuim = "Somando string com " + 1
-
-  # Retorno
   return 1
 }
-
-#!
-  FIM DO PROGRAMA
-!#

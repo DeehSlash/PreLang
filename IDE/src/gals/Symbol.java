@@ -22,11 +22,12 @@ public class Symbol {
   private boolean parameter;
   private int position;
   private boolean array;
+  private int arraySize;
   private boolean matrix;
   private boolean reference;
   
   public Symbol(String id, Type type, boolean used, String scope, boolean param,
-          int pos, boolean array, boolean matrix, boolean ref) {
+          int pos, boolean array, int arraySize, boolean matrix, boolean ref) {
     this.identifier = id;
     this.type = type;
     this.used = used;
@@ -34,6 +35,7 @@ public class Symbol {
     this.parameter = param;
     this.position = pos;
     this.array = array;
+    this.arraySize = arraySize;
     this.matrix = matrix;
     this.reference = ref;
   }
@@ -94,6 +96,14 @@ public class Symbol {
     this.array = array;
   }
 
+  public int getArraySize() {
+    return arraySize;
+  }
+  
+  public void setArraySize(int size) {
+    this.arraySize = size;
+  }
+  
   public boolean isMatrix() {
     return matrix;
   }

@@ -20,15 +20,21 @@ public class Semantico implements Constants
   }
   
   
-    Stack escoposFuncao = new Stack(), expressao = new Stack();
-    public List<Simbolo> TabelaSimbolos = new ArrayList();
-    int pos = 0, indiceVariavel = 0, idEscopo = 0;
+  //Stack escoposFuncao = new Stack(), expressao = new Stack();
+  //public List<Simbolo> TabelaSimbolos = new ArrayList();
+  //int pos = 0, indiceVariavel = 0, idEscopo = 0;
   
   // Symbols Table
   public ArrayList<Symbol> symbolTable = new ArrayList<>();
   
   // Semantic Table
   public Stack<Integer> semanticTable = new Stack<>();
+  
+  // Value Table
+  public Stack<Integer> valueTable = new Stack<>();
+  
+  // Assembler
+  private final Assembler assembler = new Assembler();
   
   // Current mode
   private Mode mode = Mode.NONE;
@@ -42,9 +48,11 @@ public class Semantico implements Constants
   private Symbol.Type type;
   private int position = 0;
   private boolean array = false;
+  private int arraySize = 0;
   private ArrayList<Symbol> parametersToBeAdded = new ArrayList<>();
   private int innerScopeCount = 0;
   private int parameterCount = 0;
+  private boolean flagExp = false;
     
   /**
    * #1   =   FUNCTION
@@ -160,6 +168,8 @@ public class Semantico implements Constants
       case 12:
         this.variableOrConstant = token.getLexeme();
         this.type = Type.UNDEFINED;
+        if(flagExp)
+          this.assembler.addToText("LD", scopeStack.peek().replace("@", "") + "_" + token.getLexeme().replace("$", ""));
         break;
         
       // COMMAND (AFTER)
@@ -192,6 +202,7 @@ public class Semantico implements Constants
       // ATTRIBUTE ASSIGNMENT COMMAND (START)
       case 16:
         this.mode = Mode.ATTRIBUTE_ASSIGNMENT;
+        flagExp = true;
         break;
         
       // ATTRIBUTE DECLARATION COMMAND
@@ -204,8 +215,10 @@ public class Semantico implements Constants
         
       // INT
       case 50:
-        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT) {
           this.semanticTable.push(0);
+          this.valueTable.push(Integer.parseInt(token.getLexeme()));
+        }
         break;
         
       // FLOAT
@@ -273,38 +286,38 @@ public class Semantico implements Constants
   }	
   
   
-//detecta se a variavel a ser atribuido o valor foi declarada
-    public void detectaVariavelAtribuicaoDireta(String t) throws SemanticError {
-        int in = 0, inachado = 0;
-        Simbolo sim = null;
-        for (Simbolo i : TabelaSimbolos) {
-            if (i.getId().equals(t) && i.getEscopo() == (int) escoposFuncao.peek()) {
-                sim = i;
-                expressao.push(i.getTipo());
-                inachado = in;
-                break;
-
-            } else if (i.getId().equals(t)) {
-                if (sim == null) {
-                    sim = new Simbolo(t, (int) escoposFuncao.peek());
-                    inachado = in;
-                } else {
-                    if (sim.escopo < i.getEscopo()) {
-                        sim = i;
-                        inachado = in;
-                    }
-                }
-
-            }
-            in++;
-        }
-        if (sim == null) {
-            throw new SemanticError("A variável '" + t + "' utilizada não foi declarada");
-        }
-        expressao.push(sim.getTipo());
-        TabelaSimbolos.get(inachado).setUsada(true);
-        indiceVariavel = in - 1;
-    }  
+////detecta se a variavel a ser atribuido o valor foi declarada
+//    public void detectaVariavelAtribuicaoDireta(String t) throws SemanticError {
+//        int in = 0, inachado = 0;
+//        Simbolo sim = null;
+//        for (Simbolo i : TabelaSimbolos) {
+//            if (i.getId().equals(t) && i.getEscopo() == (int) escoposFuncao.peek()) {
+//                sim = i;
+//                expressao.push(i.getTipo());
+//                inachado = in;
+//                break;
+//
+//            } else if (i.getId().equals(t)) {
+//                if (sim == null) {
+//                    sim = new Simbolo(t, (int) escoposFuncao.peek());
+//                    inachado = in;
+//                } else {
+//                    if (sim.escopo < i.getEscopo()) {
+//                        sim = i;
+//                        inachado = in;
+//                    }
+//                }
+//
+//            }
+//            in++;
+//        }
+//        if (sim == null) {
+//            throw new SemanticError("A variável '" + t + "' utilizada não foi declarada");
+//        }
+//        expressao.push(sim.getTipo());
+//        TabelaSimbolos.get(inachado).setUsada(true);
+//        indiceVariavel = in - 1;
+//    }  
   
   /**
    * Adds a function to the Symbol Table
@@ -317,7 +330,7 @@ public class Semantico implements Constants
               " had already been declared before");
     
     this.symbolTable.add(new Symbol(this.function, this.type, false,
-            "global", false, 0, false, false, false));
+            "global", false, 0, false, 0, false, false));
     
     return true;
   }
@@ -333,7 +346,7 @@ public class Semantico implements Constants
               " had already been declared before");
     
     this.parametersToBeAdded.add(new Symbol(this.variableOrConstant, this.type, false,
-            this.function, true, this.position, this.array, false, false));
+            this.function, true, this.position, this.array, this.arraySize, false, false));
     
     this.position++;
     
@@ -357,7 +370,7 @@ public class Semantico implements Constants
   private void addConstant() {
     if (!identifierExists(this.variableOrConstant))
       this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
-            this.scopeStack.peek(), false, 0, this.array, false, false));
+            this.scopeStack.peek(), false, 0, this.array, this.arraySize, false, false));
   }
   
   /**
@@ -366,7 +379,8 @@ public class Semantico implements Constants
   private void addVariable() {
     if (!identifierExists(this.variableOrConstant)) {
       this.symbolTable.add(new Symbol(this.variableOrConstant, this.type, false,
-            this.scopeStack.peek(), false, 0, this.array, false, false));
+            this.scopeStack.peek(), false, 0, this.array, this.arraySize, false, false));
+      this.assembler.addToData(this.scopeStack.peek().replace("@", "") + "_" + this.variableOrConstant.replace("$", ""), Integer.toString(0));
     }
   }
   
@@ -508,7 +522,10 @@ public class Semantico implements Constants
   }
   
   private Type resolveExpression() throws SemanticError {
+    this.assembler.addToText("LDI", String.valueOf(valueTable.pop()));
+    
     while (semanticTable.size() > 1) {
+      // TYPES
       int type1 = semanticTable.pop();
       int operator = semanticTable.pop();
       int type2 = semanticTable.pop();
@@ -520,7 +537,19 @@ public class Semantico implements Constants
       } else {
         throw new SemanticError("Invalid expression");
       }
+      
+      // VALUES
+      if (type1 == 0 && type2 == 0) {
+        if(operator == 0) {
+          this.assembler.addToText("ADDI", String.valueOf(valueTable.pop()));
+        } else if (operator == 1) {
+          this.assembler.addToText("SUBI", String.valueOf(valueTable.pop()));
+        }
+      }
     }
+    
+    flagExp = false;
+    this.assembler.addToText("STO", this.scopeStack.peek().replace("@", "") + "_" + this.variableOrConstant.replace("$", ""));
     
     int lastType = semanticTable.pop();
     
@@ -546,5 +575,9 @@ public class Semantico implements Constants
         System.out.println("Symbol " + symbol.getIdentifier() + " not used in scope " + scope);
       }
     }
+  }
+  
+  public String getAssemblyCode() {
+    return this.assembler.getCode();
   }
 }
