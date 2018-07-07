@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -23,14 +23,33 @@ hexadecimal: 0x[0-9a-fA-F]+
 string: \"[^\"]*\"
 char: '[^']'
 #Tokens
+// OTHERS
 : {ignore}
 NEW_LINE: \n
 
+// OTHERS RESERVED WORDS / CHARACTERS
+BREAK: "break" 
+COMMA: ","
+STRUCTURE_REFERENCE: "."
+COLON: ":"
+RETURN: "return"
+IN: "in"
+NULL: "null"
+FUNCTION_RETURN: "->"
+SCOPE_OPEN: "{"
+SCOPE_CLOSE: "}"
+SUBGROUP_OPEN: "("
+SUBGROUP_CLOSE: ")"
+INDEX_OPEN: "["
+INDEX_CLOSE: "]"
+
+// RESERVED FUNCTIONS
 MAIN_FUNCTION: "@main"
 PRINT: "@print"
 INPUT: "@input"
 RANGE: "@range"
 
+// IDENTIFIERS
 VAR: "$"{identifier}
 CONST: "&"{identifier}
 FUNCTION: "@"{identifier}
@@ -47,31 +66,19 @@ DEFAULT: "default"
 WHILE: "while"
 DO: "do"
 FOR: "for"
+IN: "in"
 CONTINUE: "continue"
 
-// OTHERS RESERVED WORDS
-BREAK: "break" 
-COMMA: ","
-STRUCTURE_REFERENCE: "."
-COLON: ":"
-RETURN: "return"
-IN: "in"
-NULL: "null"
+// TYPES
+TYPE_VOID: "void"
+TYPE_INT: "int"
+TYPE_FLOAT: "float"
+TYPE_DOUBLE: "double"
+TYPE_STRING: "string"
+TYPE_CHAR: "char"
+TYPE_BOOLEAN: "boolean"
 
-FUNCTION_RETURN: "->"
-
-SCOPE_OPEN: "{"
-SCOPE_CLOSE: "}"
-
-SUBGROUP_OPEN: "("
-SUBGROUP_CLOSE: ")"
-
-INDEX_OPEN: "["
-INDEX_CLOSE: "]"
-
-IN: "in"
-
-// VALUES
+// TYPES VALUES
 INT: {int}
 FLOAT: {float}
 BOOLEAN: {boolean}
@@ -110,15 +117,6 @@ OP_BW_OR: "|"
 OP_BW_XOR: "^"
 OP_BW_LS: "<<"
 OP_BW_RS: ">>"
-
-// PRIMITIVE TYPES
-TYPE_VOID: "void"
-TYPE_INT: "int"
-TYPE_FLOAT: "float"
-TYPE_DOUBLE: "double"
-TYPE_STRING: "string"
-TYPE_CHAR: "char"
-TYPE_BOOLEAN: "boolean"
 #NonTerminals
 <program>
 <main_function>
@@ -182,78 +180,95 @@ TYPE_BOOLEAN: "boolean"
 <op_arithmetic_high>
 <op_arithmetic_higher>
 #Grammar
-// Main structure
+// MAIN STRUCTURE ----------
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3; 
 <function_list> ::= <function> | <function> <function_list>;
 <function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> <new_line>;
+// -------------------------
 
-// Function parameters
+
+// FUNCTION PARAMETERS ----------
 <fn_parameter_list> ::= SUBGROUP_OPEN #4 <fn_parameters> SUBGROUP_CLOSE #5 | SUBGROUP_OPEN #4 SUBGROUP_CLOSE #5;
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA #7 <fn_parameters>;
 <fn_parameter> ::= VAR #6 COLON <types> | CONST #6 COLON <types>;
+// ------------------------------
 
-// Parameters list
+
+// PARAMETERS LIST ----------
 <parameter_list> ::= SUBGROUP_OPEN <parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 <parameters> ::= <exp> | <exp> COMMA <parameters>;
+// --------------------------
 
-// Types
+
+// TYPES ----------
 <type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
 <types> ::= <type> #2 | <type> #2 INDEX_OPEN #8 INDEX_CLOSE #9;
 <type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR;
+// ----------------
 
-// Arrays
+
+// ARRAYS ----------
 <array> ::= VAR <array_index> | CONST <array_index>;
 <array_values> ::= INDEX_OPEN <parameters> INDEX_CLOSE;
 <array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
+// -----------------
 
-// Misc
+
+// MISC ----------
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
-
-<function_call> ::= FUNCTION <parameter_list>;
 <scope> ::= SCOPE_OPEN #10 <new_line> <command_list> SCOPE_CLOSE #11 | SCOPE_OPEN #10 <new_line> SCOPE_CLOSE #11;
+// ---------------
 
-// Commands
+
+// COMMANDS ----------
 <command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
-// Assignments
+// ASSIGNMENTS
 <command> ::= <attributes> #17 | <attributes> OP_ASSIGN <parameters>;
 <command> ::= <attribute> #16 OP_ASSIGN <exp> #14;
-// Input / Output
+// INPUT / OUTPUT
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;
-// Function call
+// FUNCTION CALL
 <command> ::= FUNCTION <parameter_list> | <attribute> OP_ASSIGN FUNCTION <parameter_list>;
-// Conditional
+// CONDITIONAL
 <command> ::= <if>;
 <command> ::= <if> <else>;
 <command> ::= <if> <elsif>;
 <command> ::= <if> <elsif> <else>;
-// Loop
+// LOOP
 <command> ::= <while>;
 <command> ::= <do_while>;
 <command> ::= <for>;
-// Special
+// SPECIAL
 <command> ::= RETURN <exp>;
+// ------------------
 
-// Attributes
+
+// ATTRIBUTES ----------
 <attributes> ::= <attribute> | <attribute> COMMA <attributes>;
 <attribute> ::= VAR #12 | CONST #12 | VAR #12 <array_index> #15 | CONST #12 <array_index> #15;
+// ---------------------
 
-// Conditional
+
+// CONDITIONAL ----------
 <if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
 <else> ::= ELSE <scope>;
 <elsif> ::= <single_elsif> | <single_elsif> <elsif>;
 <single_elsif> ::= ELSIF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+// ----------------------
 
-// Loop
+
+// LOOPS ----------
 <while> ::= WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
 <do_while> ::= DO <scope> WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <for>  ::=  FOR SUBGROUP_OPEN <range> SUBGROUP_CLOSE <scope>;
-//range for loop
 <range> ::= <attribute> IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
 <range_types> ::= INT | INT COMMA INT | INT COMMA INT COMMA INT;
+// ----------------
 
-// Expressions
+
+// EXPRESSIONS ----------
 <exp>  ::= <exp> OP_OR #64 <exp1> | <exp1>;
 <exp1> ::= <exp1> OP_AND #65 <exp2> | <exp2>;
 <exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
@@ -266,13 +281,18 @@ TYPE_BOOLEAN: "boolean"
 <exp9> ::= <op_negate> <exp10> | <exp10>;
 <exp10> ::= INT #50 | FLOAT #51 | BOOLEAN #54 | BINARY | HEXADECIMAL | STRING #53 | CHAR #52 | VAR #55 | CONST #55 | <exp11>;
 <exp11> ::= <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+// ----------------------
 
-// Operators
+
+// OPERATORS ----------
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
 <op_bitwise> ::= OP_BW_LS | OP_BW_RS;
 <op_arithmetic_low> ::= OP_ADD #60 | OP_SUB #61;
 <op_arithmetic_high> ::= OP_MULT #62 | OP_DIV #63 | OP_MOD;
+// --------------------
 
-// Expression test
+
+// EXPRESSION TEST ----------
 // -$x + 8.8 - !$x * 2 / ~$y % 3 << 7 != $y >> 3 || ($x <= 3 && $y > 8) | $p & ($h ^ $g)
+// --------------------------
