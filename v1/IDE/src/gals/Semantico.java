@@ -31,7 +31,7 @@ public class Semantico implements Constants
   public Stack<Integer> semanticTable = new Stack<>();
   
   // Value Table
-  public Stack<Integer> valueTable = new Stack<>();
+  public Stack<String> valueTable = new Stack<>();
   
   // Assembler
   private final Assembler assembler = new Assembler();
@@ -217,7 +217,7 @@ public class Semantico implements Constants
       case 50:
         if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT) {
           this.semanticTable.push(0);
-          this.valueTable.push(Integer.parseInt(token.getLexeme()));
+          this.valueTable.push(token.getLexeme());
         }
         break;
         
@@ -247,8 +247,10 @@ public class Semantico implements Constants
         
       // VARIABLE / CONST
       case 55:
-        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT)
+        if(this.mode == Mode.ATTRIBUTE_ASSIGNMENT) {
           this.semanticTable.push(this.getType(token.getLexeme()));
+          this.valueTable.push(token.getLexeme());
+        }
         break;
         
       // EXPRESSION OPERATORS
