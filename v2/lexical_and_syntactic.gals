@@ -131,7 +131,7 @@ OP_BW_RS: ">>"
 <parameters>
 
 <type>
-<types>
+<type_array>
 <type_values>
 
 <array>
@@ -182,16 +182,16 @@ OP_BW_RS: ">>"
 #Grammar
 // MAIN STRUCTURE ----------
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
-<main_function> ::= MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3 <new_line> | MAIN_FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> #3; 
+<main_function> ::= MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line> | MAIN_FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope>; 
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION #1 <fn_parameter_list> FUNCTION_RETURN <type> #2 <scope> <new_line>;
+<function> ::= FUNCTION <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line>;
 // -------------------------
 
 
 // FUNCTION PARAMETERS ----------
-<fn_parameter_list> ::= SUBGROUP_OPEN #4 <fn_parameters> SUBGROUP_CLOSE #5 | SUBGROUP_OPEN #4 SUBGROUP_CLOSE #5;
-<fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA #7 <fn_parameters>;
-<fn_parameter> ::= VAR #6 COLON <types> | CONST #6 COLON <types>;
+<fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
+<fn_parameter> ::= VAR COLON <types> | CONST COLON <types>;
 // ------------------------------
 
 
@@ -202,8 +202,11 @@ OP_BW_RS: ">>"
 
 
 // TYPES ----------
+// Exp.: void | int | float | double | string | char | boolean
 <type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
-<types> ::= <type> #2 | <type> #2 INDEX_OPEN #8 INDEX_CLOSE #9;
+// Ex.: int[5] | char[10]
+<type_array> ::= <type> INDEX_OPEN INT INDEX_CLOSE;
+// Ex.: 10 | 5.5 | TRUE | 0b1010 | 0x1fac | "Hello, world!" | 'c'
 <type_values> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR;
 // ----------------
 
@@ -217,15 +220,15 @@ OP_BW_RS: ">>"
 
 // MISC ----------
 <new_line> ::= NEW_LINE | NEW_LINE <new_line>;
-<scope> ::= SCOPE_OPEN #10 <new_line> <command_list> SCOPE_CLOSE #11 | SCOPE_OPEN #10 <new_line> SCOPE_CLOSE #11;
+<scope> ::= SCOPE_OPEN <new_line> <command_list> SCOPE_CLOSE | SCOPE_OPEN <new_line> SCOPE_CLOSE;
 // ---------------
 
 
 // COMMANDS ----------
-<command_list> ::= <command> #13 <new_line> | <command> #13 <new_line> <command_list>;
+<command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
 // ASSIGNMENTS
-<command> ::= <attributes> #17 | <attributes> OP_ASSIGN <parameters>;
-<command> ::= <attribute> #16 OP_ASSIGN <exp> #14;
+<command> ::= <attributes> | <attributes> OP_ASSIGN <parameters>;
+<command> ::= <attribute> OP_ASSIGN <exp>;
 // INPUT / OUTPUT
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;
@@ -247,7 +250,7 @@ OP_BW_RS: ">>"
 
 // ATTRIBUTES ----------
 <attributes> ::= <attribute> | <attribute> COMMA <attributes>;
-<attribute> ::= VAR #12 | CONST #12 | VAR #12 <array_index> #15 | CONST #12 <array_index> #15;
+<attribute> ::= VAR | CONST | VAR <array_index> | CONST <array_index>;
 // ---------------------
 
 
@@ -269,18 +272,19 @@ OP_BW_RS: ">>"
 
 
 // EXPRESSIONS ----------
-<exp>  ::= <exp> OP_OR #64 <exp1> | <exp1>;
-<exp1> ::= <exp1> OP_AND #65 <exp2> | <exp2>;
+<exp>  ::= <exp> OP_OR <exp1> | <exp1>;
+<exp1> ::= <exp1> OP_AND <exp2> | <exp2>;
 <exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
 <exp3> ::= <exp3> OP_BW_XOR <exp4> | <exp4>;
 <exp4> ::= <exp4> OP_BW_AND <exp5> | <exp5>;
-<exp5> ::= <exp5> <op_relational> #64 <exp6> | <exp6>;
+<exp5> ::= <exp5> <op_relational> <exp6> | <exp6>;
 <exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9>;
 <exp9> ::= <op_negate> <exp10> | <exp10>;
-<exp10> ::= INT #50 | FLOAT #51 | BOOLEAN #54 | BINARY | HEXADECIMAL | STRING #53 | CHAR #52 | VAR #55 | CONST #55 | <exp11>;
-<exp11> ::= <array> | <array_values> | <function_call> | SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+<exp10> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR | VAR | CONST | <exp11>;
+<exp11> ::= <array> | <array_values> | <function_call> | <exp12>;
+<exp12> ::= SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 // ----------------------
 
 
@@ -288,11 +292,6 @@ OP_BW_RS: ">>"
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
 <op_bitwise> ::= OP_BW_LS | OP_BW_RS;
-<op_arithmetic_low> ::= OP_ADD #60 | OP_SUB #61;
-<op_arithmetic_high> ::= OP_MULT #62 | OP_DIV #63 | OP_MOD;
+<op_arithmetic_low> ::= OP_ADD | OP_SUB;
+<op_arithmetic_high> ::= OP_MULT | OP_DIV | OP_MOD;
 // --------------------
-
-
-// EXPRESSION TEST ----------
-// -$x + 8.8 - !$x * 2 / ~$y % 3 << 7 != $y >> 3 || ($x <= 3 && $y > 8) | $p & ($h ^ $g)
-// --------------------------
