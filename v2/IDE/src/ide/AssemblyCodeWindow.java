@@ -6,7 +6,6 @@
 
 package ide;
 
-import static ide.PreLangWindow.editor;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +17,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
+import static ide.MainWindow.txtEditor;
 
 public class AssemblyCodeWindow extends javax.swing.JFrame {
 
@@ -116,9 +116,9 @@ public class AssemblyCodeWindow extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "O arquivo foi salvo.");
             
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(PreLangWindow.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(PreLangWindow.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
   }//GEN-LAST:event_jMenuItem1ActionPerformed
 

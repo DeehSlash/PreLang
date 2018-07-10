@@ -1,20 +1,47 @@
 package gals;
 
+/**
+ * Assembler Class
+ * Used to construct BIP assembly code from PreLang code
+ */
 public class Assembler {
 
-  String data = ".data\n";
-  String text = ".text\n";
+  // Data section (variables declaration)
+  private String data;
+  
+  // Text section (commands)
+  private String text;
 
-  public Assembler() {}
+  /**
+   * Default constructor
+   */
+  public Assembler() {
+    this.data = ".data\n";
+    this.text = ".text\n";
+  }
 
+  /**
+   * Joins and returns the full assemly code (data + text)
+   * @return The full assembly code
+   */
   public String getCode() {
     return data + "\n" + text;
   }
 
+  /**
+   * Adds a line to the data section
+   * @param a Left side of the command (variable name)
+   * @param b  Right side of the command (initial value)
+   */
   public void addToData(String a, String b) {
     this.data += "    " + a + " : " + b + "\n";
   }
   
+  /**
+   * Adds a lien to the text section
+   * @param a Left side of the command (mnemonic)
+   * @param b Right side of the command
+   */
   public void addToText(String a, String b) {
     this.text += "    " + a + "\t" + b + "\n";
   }
