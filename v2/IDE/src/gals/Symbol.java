@@ -1,5 +1,8 @@
 package gals;
 
+/**
+ * Symbol
+ */
 public class Symbol {
 
   public enum Type {
