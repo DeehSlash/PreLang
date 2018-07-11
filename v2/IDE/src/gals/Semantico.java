@@ -9,7 +9,7 @@ import java.util.Stack;
 /**
  * Semantico
  */
-public class Semantico implements Constants {
+public class Semantico {
 
   /**
    * Mode Enum to help control the flow
