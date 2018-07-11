@@ -2,8 +2,6 @@ package gals;
 
 import gals.Symbol.Type;
 import ide.IDE;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Stack;
 
 /**
