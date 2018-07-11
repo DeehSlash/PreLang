@@ -36,6 +36,7 @@ public class Semantico implements Constants {
   private Mode currentMode = Mode.NONE;
   private String lastFunction;
   private Type lastType = Type.UNDEFINED;
+  private boolean isArray = false;
   
   /**
    * ACTION MANUAL
@@ -45,6 +46,7 @@ public class Semantico implements Constants {
    * Symbols declaration
    * 
    * 100 - 199
+   * Types
    * 
    * 900 - 999
    * Misc (scope, etc.)
@@ -69,6 +71,19 @@ public class Semantico implements Constants {
         break;
       // -----------------------------------------------------------------------
         
+      // Primitive type
+      case 100:
+        lastType = parseType(token.getLexeme());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Primitive type as array
+      case 101:
+        lastType = parseType(token.getLexeme());
+        isArray = true;
+        break;
+      // -----------------------------------------------------------------------
+        
       // Scope open
       case 900:
         // In any case, generate scope
@@ -78,7 +93,7 @@ public class Semantico implements Constants {
         // the current mode to None
         if (currentMode == Mode.DECLARING_FUNCTION) {
           addFunctionToSymbolsTable(lastFunction);
-          currentMode = Mode.NONE;
+          resetState();
         }
         
         break;
@@ -113,7 +128,7 @@ public class Semantico implements Constants {
    */
   private void addFunctionToSymbolsTable(String functionName) {
     symbolTable.add(new Symbol(
-            functionName, lastType, false, "global", false, 0, false,
+            functionName, lastType, false, "global", false, 0, isArray,
             0, false, false
     ));
   }
@@ -204,5 +219,15 @@ public class Semantico implements Constants {
     }
     
     throw new SemanticError("Expected type, found " + type);
+  }
+  
+  /**
+   * Reset mode and temp variables to its default state
+   */
+  private void resetState () {
+    this.currentMode = Mode.NONE;
+    this.lastFunction = "";
+    this.lastType = Type.UNDEFINED;
+    this.isArray = false;
   }
 }
