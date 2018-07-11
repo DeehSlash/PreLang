@@ -14,7 +14,8 @@ public class Semantico {
    */
   private enum Mode {
     NONE,
-    DECLARING_FUNCTION
+    DECLARING_FUNCTION,
+    DECLARING_PARAMETERS
   }
   
   // Symbols Table
@@ -33,6 +34,7 @@ public class Semantico {
   // Temp variables
   private Mode currentMode = Mode.NONE;
   private String lastFunction;
+  private String lastParameter;
   private Type lastType = Type.UNDEFINED;
   private boolean isArray = false;
   
@@ -69,9 +71,31 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
+      // Parameter name (declaration)
+      case 20:
+        lastParameter = token.getLexeme();
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Parameter declaration start
+      case 21:
+        currentMode = Mode.DECLARING_PARAMETERS;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Parameter declaration end
+      case 22:
+        currentMode = Mode.DECLARING_FUNCTION;
+        break;
+      // -----------------------------------------------------------------------
+        
       // Primitive type
       case 100:
         lastType = parseType(token.getLexeme());
+        isArray = false;
+        
+        if (currentMode == Mode.DECLARING_PARAMETERS)
+          symbolTable.addParameter(lastParameter, lastType, isArray);
         break;
       // -----------------------------------------------------------------------
         
@@ -79,6 +103,9 @@ public class Semantico {
       case 101:
         lastType = parseType(token.getLexeme());
         isArray = true;
+        
+        if (currentMode == Mode.DECLARING_PARAMETERS)
+          symbolTable.addParameter(lastParameter, lastType, isArray);
         break;
       // -----------------------------------------------------------------------
         
@@ -163,9 +190,10 @@ public class Semantico {
    * Reset mode and temp variables to its default state
    */
   private void resetState () {
-    this.currentMode = Mode.NONE;
-    this.lastFunction = "";
-    this.lastType = Type.UNDEFINED;
-    this.isArray = false;
+    currentMode = Mode.NONE;
+    lastFunction = "";
+    lastParameter = "";
+    lastType = Type.UNDEFINED;
+    isArray = false;
   }
 }

@@ -4,6 +4,7 @@ import gals.Symbol.Type;
 import ide.IDE;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -11,23 +12,65 @@ import java.util.Stack;
  */
 public class SymbolTable {
   
+  // Symbol table
   public ArrayList<Symbol> symbolTable = new ArrayList<>();
+  
+  // Temp variables
+  private List<String> paramNames;
+  private List<Type> paramTypes;
+  private List<Boolean> paramArray;
+  
+  /**
+   * Default constructor
+   */
+  public SymbolTable () {
+    paramNames = new ArrayList<>();
+    paramTypes = new ArrayList<>();
+    paramArray = new ArrayList<>();
+  }
   
   /**
    * Adds a new function to the Symbol Table
-   * @param name
-   * @param type
-   * @param returnsArray
-   * @throws gals.SemanticError Throws an error if the function is already
+   * @param name Function name
+   * @param type Function return type
+   * @param returnsArray Function returns array
+   * @throws SemanticError Throws an error if the function is already
    * defined
    */
   public void addFunction(String name, Type type, boolean returnsArray) throws SemanticError {
-    // First checks if function has already been declared
+    // First checks if the function has already been declared
     if (functionExists(name))
       throw new SemanticError("Function " + name + " is already defined");
     
+    // Adds the function to the Symbol Table
     this.symbolTable.add(new Symbol(name, type, false, "global", false, 0,
             returnsArray, 0, false, false));
+    
+    // Then adds its parameters (if any)
+    for (int i = 0; i < paramNames.size(); i++)
+      this.symbolTable.add(new Symbol(paramNames.get(i), paramTypes.get(i),
+              false, name, true, i, paramArray.get(i), 0, false, false));
+    
+    // In any case, reset the temp variables
+    resetTempVariables();
+  }
+  
+  /**
+   * Adds a new temp parameter
+   * @param name Parameter name
+   * @param type Parameter type
+   * @param isArray If parameter is array
+   * @throws SemanticError  Throws an error if the parameter is already declared
+   */
+  public void addParameter (String name, Type type, boolean isArray) throws SemanticError {
+    // First checks if the parameter has already been declared
+    if (parameterExists(name))
+      throw new SemanticError("Parameter " + name + " is already declared");
+    
+    // Then adds it to the temp arrays
+    paramNames.add(name);
+    paramTypes.add(type);
+    paramArray.add(isArray);
   }
   
   /**
@@ -68,6 +111,20 @@ public class SymbolTable {
   }
   
   /**
+   * Checks if the given parameter exists
+   * @param name Parameter name to check
+   * @return True if the parameter is already declared
+   */
+  private boolean parameterExists(String name) {
+    for (String paramName : paramNames) {
+      if (paramName.equals(name))
+        return true;
+    }
+    
+    return false;
+  }
+  
+  /**
    * Checks for symbols that haven't been used
    *
    * @param scope Scope to check symbols
@@ -86,5 +143,14 @@ public class SymbolTable {
    */
   public ArrayList<Symbol> getSymbolTable () {
     return symbolTable;
+  }
+  
+  /**
+   * Reset temp variables
+   */
+  private void resetTempVariables () {
+    paramNames = new ArrayList<>();
+    paramTypes = new ArrayList<>();
+    paramArray = new ArrayList<>();
   }
 }

@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -244,11 +244,11 @@ OP_BW_RS: ">>"
 
 // FUNCTION PARAMETERS ----------
 // Used in function declaration
-<fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<fn_parameter_list> ::= SUBGROUP_OPEN #21 <fn_parameters> SUBGROUP_CLOSE #22 | SUBGROUP_OPEN SUBGROUP_CLOSE;
 // Ex.: ($a: int) | ()
 <fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
 // Ex.: $a: int | $a: int, $b: string, &c: float
-<fn_parameter> ::= VAR COLON <type> | CONST COLON <type>;
+<fn_parameter> ::= VAR #20 COLON <type> | CONST #20 COLON <type>;
 // Ex.: $a: int | &b: string
 // ------------------------------
 
