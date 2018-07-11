@@ -35,7 +35,7 @@ public class MainWindow extends javax.swing.JFrame {
   private ArrayList<Symbol> symbolTable;
   private String assemblyCode;
   
-  private final boolean DEBUG = true;
+  private final boolean DEBUG = false;
 
   /**
    * Creates new form MainWindow
@@ -49,11 +49,15 @@ public class MainWindow extends javax.swing.JFrame {
    * Adds listeners to the respective buttons / menus
    */
   private void addListeners() {
+    // Menu Items
     this.mniOpen.addActionListener(e -> openFile());
     this.mniSave.addActionListener(e -> saveFile());
     this.mniExit.addActionListener(e -> exit());
     this.mniSymbolTable.addActionListener(e -> openSymbolTable());
     this.mniAssemblyCode.addActionListener(e -> openAssemblyCode());
+    
+    // Buttons
+    this.btnRun.addActionListener(e -> run());
   }
 
   /**
@@ -176,15 +180,17 @@ public class MainWindow extends javax.swing.JFrame {
     lexico = new Lexico(txtEditor.getText());
     sintatico = new Sintatico();
     semantico = new Semantico();
+    
     try {
       txtOutput.setText("");
       sintatico.parse(lexico, semantico);
       txtOutput.append("SUCCESS\n");
     } catch (LexicalError | SyntaticError | SemanticError ex) {
-      txtOutput.append(ex.getMessage());
+      txtOutput.append("ERROR: " + ex.getMessage());
+      System.out.println(ex.getMessage());
     } finally {
       this.symbolTable = semantico.symbolTable;
-      this.assemblyCode = semantico.getAssemblyCode();
+      this.assemblyCode = semantico.getAssembly();
     }
   }
   
@@ -238,7 +244,10 @@ public class MainWindow extends javax.swing.JFrame {
     setTitle("PreIDE");
     setBackground(new java.awt.Color(0, 0, 0));
     setLocationByPlatform(true);
+    setMaximumSize(new java.awt.Dimension(1000, 700));
+    setMinimumSize(new java.awt.Dimension(1000, 700));
     setName("frmMain"); // NOI18N
+    setPreferredSize(new java.awt.Dimension(1000, 700));
     getContentPane().setLayout(new java.awt.GridBagLayout());
 
     pnlCenter.setLayout(new java.awt.GridBagLayout());
