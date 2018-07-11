@@ -20,7 +20,7 @@ public class Semantico {
   }
   
   // Symbols Table
-  public ArrayList<Symbol> symbolTable = new ArrayList<>();
+  public SymbolTable symbolTable = new SymbolTable();
 
   // Semantic Table
   public Stack<Integer> semanticTable = new Stack<>();
@@ -92,7 +92,7 @@ public class Semantico {
         // If it's declaring a function, add it to the symbols table and reset
         // the current mode to None
         if (currentMode == Mode.DECLARING_FUNCTION) {
-          addFunctionToSymbolsTable(lastFunction);
+          symbolTable.addFunction(lastFunction, lastType, isArray);
           resetState();
         }
         
@@ -123,72 +123,6 @@ public class Semantico {
   } 
   
   /**
-   * Adds a function to the symbols table
-   * @param functionName Function name to add
-   */
-  private void addFunctionToSymbolsTable(String functionName) throws SemanticError {
-    // First checks if function has already been declared
-    if (functionExists(functionName))
-      throw new SemanticError(
-              "Function " + functionName + " is already defined"
-      );
-    
-    symbolTable.add(new Symbol(
-            functionName, lastType, false, "global", false, 0, isArray,
-            0, false, false
-    ));
-  }
-  
-  /**
-   * Checks if the given identifier exists in the current scope or in
-   * the upper scopes
-   * @param name Identifier to check
-   * @return True if the identifier exists in any of the current scopes
-   */
-  private boolean identifierExists(String id) {
-    Iterator iterator = scopeStack.iterator();
-
-    while (iterator.hasNext()) {
-      String scope = (String) iterator.next();
-      for (Symbol symbol : symbolTable) {
-        if(symbol.getIdentifier() != null) {
-          if (symbol.getIdentifier().equals(id) && symbol.getScope().startsWith(scope))
-            return true;
-        }
-      }
-    }
-    
-    return false;
-  }
-  
-  /**
-   * Checks if the given function exists
-   * @param name Function name to check
-   * @return True if the function exists in the global scope
-   */
-  private boolean functionExists(String name) {
-    for (Symbol symbol : symbolTable) {
-      if (symbol.getIdentifier().equals(name) && symbol.isFunction())
-        return true;
-    }
-    
-    return false;
-  }
-  
-  /**
-   * Checks for symbols that haven't been used
-   *
-   * @param scope Scope to check symbols
-   */
-  private void checkForNotUsed(String scope) {
-    for (Symbol symbol : symbolTable) {
-      if (symbol.getScope().startsWith(scope) && !symbol.hasBeenUsed()) {
-        IDE.mainWindow.warn("Symbol " + symbol.getIdentifier() + " not used in scope " + scope);
-      }
-    }
-  }
-
-  /**
    * Gets the generated assembly from Assembler class
    * @return The generated assembly code
    */
@@ -205,23 +139,23 @@ public class Semantico {
   private Symbol.Type parseType(String type) throws SemanticError {
     switch (type) {
       case "void":
-        return Symbol.Type.VOID;
+        return Type.VOID;
       case "int":
-        return Symbol.Type.INT;
+        return Type.INT;
       case "float":
-        return Symbol.Type.FLOAT;
+        return Type.FLOAT;
       case "double":
-        return Symbol.Type.DOUBLE;
+        return Type.DOUBLE;
       case "string":
-        return Symbol.Type.STRING;
+        return Type.STRING;
       case "char":
-        return Symbol.Type.CHAR;
+        return Type.CHAR;
       case "boolean":
-        return Symbol.Type.BOOLEAN;
+        return Type.BOOLEAN;
       case "binary":
-        return Symbol.Type.BINARY;
+        return Type.BINARY;
       case "hexadecimal":
-        return Symbol.Type.HEXADECIMAL;
+        return Type.HEXADECIMAL;
     }
     
     throw new SemanticError("Expected type, found " + type);

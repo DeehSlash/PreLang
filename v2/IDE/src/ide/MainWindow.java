@@ -189,7 +189,7 @@ public class MainWindow extends javax.swing.JFrame {
       txtOutput.append("ERROR: " + ex.getMessage());
       System.out.println(ex.getMessage());
     } finally {
-      this.symbolTable = semantico.symbolTable;
+      this.symbolTable = semantico.symbolTable.getSymbolTable();
       this.assemblyCode = semantico.getAssembly();
     }
   }

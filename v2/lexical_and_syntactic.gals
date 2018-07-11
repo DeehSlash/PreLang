@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -278,7 +278,7 @@ OP_BW_RS: ">>"
 
 // TYPES ----------
 // Primitive type or primitive type as array
-<type> ::= <primitive_type> | <primitive_type> INDEX_OPEN INDEX_CLOSE;
+<type> ::= <primitive_type> #100 | <primitive_type> #101 INDEX_OPEN INDEX_CLOSE;
 // Primitive type
 <primitive_type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
 // Ex.: void | int | float | double | string | char | boolean
