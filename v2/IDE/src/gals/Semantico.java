@@ -126,7 +126,13 @@ public class Semantico implements Constants {
    * Adds a function to the symbols table
    * @param functionName Function name to add
    */
-  private void addFunctionToSymbolsTable(String functionName) {
+  private void addFunctionToSymbolsTable(String functionName) throws SemanticError {
+    // First checks if function has already been declared
+    if (functionExists(functionName))
+      throw new SemanticError(
+              "Function " + functionName + " is already defined"
+      );
+    
     symbolTable.add(new Symbol(
             functionName, lastType, false, "global", false, 0, isArray,
             0, false, false
