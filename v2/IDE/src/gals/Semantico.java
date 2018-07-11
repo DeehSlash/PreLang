@@ -1,5 +1,6 @@
 package gals;
 
+import gals.Symbol.Type;
 import ide.IDE;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,8 +9,16 @@ import java.util.Stack;
 /**
  * Semantico
  */
-public class Semantico {
+public class Semantico implements Constants {
 
+  /**
+   * Mode Enum to help control the flow
+   */
+  private enum Mode {
+    NONE,
+    DECLARING_FUNCTION
+  }
+  
   // Symbols Table
   public ArrayList<Symbol> symbolTable = new ArrayList<>();
 
@@ -19,15 +28,26 @@ public class Semantico {
   // Assembler
   private final Assembler assembler = new Assembler();
 
-  // Scope Stack
-  Stack<String> scopeStack = new Stack<>();
+  // Scope
+  private Stack<String> scopeStack = new Stack<>();
+  private int scopeCount = 0;
 
+  // Temp variables
+  private Mode currentMode = Mode.NONE;
+  private String lastFunction;
+  private Type lastType = Type.UNDEFINED;
   
   /**
    * ACTION MANUAL
    * This comment describes the range of values availables for each action
    *
+   * 0 - 99
+   * Symbols declaration
    * 
+   * 100 - 199
+   * 
+   * 900 - 999
+   * Misc (scope, etc.)
    */
   
   
@@ -39,9 +59,65 @@ public class Semantico {
    * @throws SemanticError
    */
   public void executeAction(int action, Token token) throws SemanticError {
-
+    IDE.mainWindow.debug("#" + action + " - " + token.getLexeme());
+    
+    switch (action) {
+      // Function name (declaration)
+      case 10:
+        lastFunction = token.getLexeme();
+        currentMode = Mode.DECLARING_FUNCTION;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Scope open
+      case 900:
+        // In any case, generate scope
+        generateScope(token.getLexeme());
+        
+        // If it's declaring a function, add it to the symbols table and reset
+        // the current mode to None
+        if (currentMode == Mode.DECLARING_FUNCTION) {
+          addFunctionToSymbolsTable(lastFunction);
+          currentMode = Mode.NONE;
+        }
+        
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Scope close
+      case 901:
+        // Removes the top scope
+        scopeStack.pop();
+        
+        // If empty, reset the counter
+        if (scopeStack.empty())
+          scopeCount = 0;
+        
+        break;
+      // -----------------------------------------------------------------------
+    }
   }
 
+  /**
+   * Generates and push a new scope to the scope stack
+   * @param scope Scope to generate
+   */
+  private void generateScope (String scope) {
+    scopeStack.push(scope + Integer.toString(scopeCount));
+    scopeCount++;
+  } 
+  
+  /**
+   * Adds a function to the symbols table
+   * @param functionName Function name to add
+   */
+  private void addFunctionToSymbolsTable(String functionName) {
+    symbolTable.add(new Symbol(
+            functionName, lastType, false, "global", false, 0, false,
+            0, false, false
+    ));
+  }
+  
   /**
    * Checks if the given identifier exists in the current scope or in
    * the upper scopes
