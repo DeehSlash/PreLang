@@ -8,15 +8,6 @@ import java.util.Stack;
  * Semantico
  */
 public class Semantico {
-
-  /**
-   * Mode Enum to help control the flow
-   */
-  private enum Mode {
-    NONE,
-    DECLARING_FUNCTION,
-    DECLARING_PARAMETERS
-  }
   
   // Symbols Table
   public SymbolTable symbolTable = new SymbolTable();
@@ -32,7 +23,6 @@ public class Semantico {
   private int scopeCount = 0;
 
   // Temp variables
-  private Mode currentMode = Mode.NONE;
   private String lastFunction;
   private String lastParameter;
   private Type lastType = Type.UNDEFINED;
@@ -68,7 +58,13 @@ public class Semantico {
       // Function name (declaration)
       case 10:
         lastFunction = token.getLexeme();
-        currentMode = Mode.DECLARING_FUNCTION;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // After function
+      case 11:
+        symbolTable.addFunction(lastFunction, lastType, isArray);
+        resetState();
         break;
       // -----------------------------------------------------------------------
         
@@ -78,20 +74,8 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
-      // Parameter declaration start
-      case 21:
-        currentMode = Mode.DECLARING_PARAMETERS;
-        break;
-      // -----------------------------------------------------------------------
-        
-      // Parameter declaration end
-      case 22:
-        currentMode = Mode.DECLARING_FUNCTION;
-        break;
-      // -----------------------------------------------------------------------
-        
       // After parameter
-      case 23:
+      case 21:
         symbolTable.addParameter(lastParameter, lastType, isArray, arraySize);
         arraySize = 0;
         break;
@@ -119,16 +103,8 @@ public class Semantico {
         
       // Scope open
       case 900:
-        // In any case, generate scope
-        generateScope(token.getLexeme());
-        
-        // If it's declaring a function, add it to the symbols table and reset
-        // the current mode to None
-        if (currentMode == Mode.DECLARING_FUNCTION) {
-          symbolTable.addFunction(lastFunction, lastType, isArray);
-          resetState();
-        }
-        
+        // Generate scope
+        generateScope(lastFunction);   
         break;
       // -----------------------------------------------------------------------
         
@@ -198,7 +174,6 @@ public class Semantico {
    * Reset mode and temp variables to its default state
    */
   private void resetState () {
-    currentMode = Mode.NONE;
     lastFunction = "";
     lastParameter = "";
     lastType = Type.UNDEFINED;

@@ -238,17 +238,17 @@ OP_BW_RS: ">>"
 #Grammar
 // MAIN STRUCTURE ----------
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
-<main_function> ::= MAIN_FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line> | MAIN_FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> <scope>; 
+<main_function> ::= MAIN_FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope> <new_line> | MAIN_FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope>; 
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> <scope> <new_line>;
+<function> ::= FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope> <new_line>;
 // -------------------------
 
 
 // FUNCTION PARAMETERS ----------
 // Used in function declaration
-<fn_parameter_list> ::= SUBGROUP_OPEN #21 <fn_parameters> SUBGROUP_CLOSE #22 | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<fn_parameter_list> ::= SUBGROUP_OPEN <fn_parameters> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 // Ex.: ($a: int) | ()
-<fn_parameters> ::= <fn_parameter> #23 | <fn_parameter> #23 COMMA <fn_parameters>;
+<fn_parameters> ::= <fn_parameter> #21 | <fn_parameter> #21 COMMA <fn_parameters>;
 // Ex.: $a: int | $a: int, $b: string, &c: float
 <fn_parameter> ::= VAR #20 COLON <type> | CONST #20 COLON <type>;
 // Ex.: $a: int | &b: string
