@@ -37,6 +37,7 @@ public class Semantico {
   private String lastParameter;
   private Type lastType = Type.UNDEFINED;
   private boolean isArray = false;
+  private int arraySize = 0;
   
   /**
    * ACTION MANUAL
@@ -89,13 +90,17 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
+      // After parameter
+      case 23:
+        symbolTable.addParameter(lastParameter, lastType, isArray, arraySize);
+        arraySize = 0;
+        break;
+      // -----------------------------------------------------------------------
+        
       // Primitive type
       case 100:
         lastType = parseType(token.getLexeme());
         isArray = false;
-        
-        if (currentMode == Mode.DECLARING_PARAMETERS)
-          symbolTable.addParameter(lastParameter, lastType, isArray);
         break;
       // -----------------------------------------------------------------------
         
@@ -103,9 +108,12 @@ public class Semantico {
       case 101:
         lastType = parseType(token.getLexeme());
         isArray = true;
+        break;
+      // -----------------------------------------------------------------------
         
-        if (currentMode == Mode.DECLARING_PARAMETERS)
-          symbolTable.addParameter(lastParameter, lastType, isArray);
+      // Primitive type array size
+      case 102:
+        arraySize = Integer.parseInt(token.getLexeme());
         break;
       // -----------------------------------------------------------------------
         
@@ -195,5 +203,6 @@ public class Semantico {
     lastParameter = "";
     lastType = Type.UNDEFINED;
     isArray = false;
+    arraySize = 0;
   }
 }

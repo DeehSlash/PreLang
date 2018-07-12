@@ -177,6 +177,8 @@ OP_BW_RS: ">>"
 //
 <array_values>
 <array_index>
+<array_size>
+//
 // -------------------
 
 
@@ -246,7 +248,7 @@ OP_BW_RS: ">>"
 // Used in function declaration
 <fn_parameter_list> ::= SUBGROUP_OPEN #21 <fn_parameters> SUBGROUP_CLOSE #22 | SUBGROUP_OPEN SUBGROUP_CLOSE;
 // Ex.: ($a: int) | ()
-<fn_parameters> ::= <fn_parameter> | <fn_parameter> COMMA <fn_parameters>;
+<fn_parameters> ::= <fn_parameter> #23 | <fn_parameter> #23 COMMA <fn_parameters>;
 // Ex.: $a: int | $a: int, $b: string, &c: float
 <fn_parameter> ::= VAR #20 COLON <type> | CONST #20 COLON <type>;
 // Ex.: $a: int | &b: string
@@ -278,7 +280,7 @@ OP_BW_RS: ">>"
 
 // TYPES ----------
 // Primitive type or primitive type as array
-<type> ::= <primitive_type> #100 | <primitive_type> #101 INDEX_OPEN INDEX_CLOSE;
+<type> ::= <primitive_type> #100 | <primitive_type> #101 <array_size>;
 // Primitive type
 <primitive_type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
 // Ex.: void | int | float | double | string | char | boolean
@@ -293,6 +295,8 @@ OP_BW_RS: ">>"
 // Ex.: $a[5] | &b[1 + 2]
 <array_values> ::= INDEX_OPEN <values> INDEX_CLOSE;
 <array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
+<array_size> ::= INDEX_OPEN INT #102 INDEX_CLOSE | INDEX_OPEN INDEX_CLOSE;
+// Ex.: $a[2] | $a[] (sizeless)
 // -----------------
 
 

@@ -19,6 +19,7 @@ public class SymbolTable {
   private List<String> paramNames;
   private List<Type> paramTypes;
   private List<Boolean> paramArray;
+  private List<Integer> paramArraySize;
   
   /**
    * Default constructor
@@ -27,6 +28,7 @@ public class SymbolTable {
     paramNames = new ArrayList<>();
     paramTypes = new ArrayList<>();
     paramArray = new ArrayList<>();
+    paramArraySize = new ArrayList<>();
   }
   
   /**
@@ -49,7 +51,8 @@ public class SymbolTable {
     // Then adds its parameters (if any)
     for (int i = 0; i < paramNames.size(); i++)
       this.symbolTable.add(new Symbol(paramNames.get(i), paramTypes.get(i),
-              false, name, true, i, paramArray.get(i), 0, false, false));
+              false, name, true, i, paramArray.get(i), paramArraySize.get(i),
+              false, false));
     
     // In any case, reset the temp variables
     resetTempVariables();
@@ -60,9 +63,10 @@ public class SymbolTable {
    * @param name Parameter name
    * @param type Parameter type
    * @param isArray If parameter is array
+   * @param arraySize Parameter array size
    * @throws SemanticError  Throws an error if the parameter is already declared
    */
-  public void addParameter (String name, Type type, boolean isArray) throws SemanticError {
+  public void addParameter (String name, Type type, boolean isArray, int arraySize) throws SemanticError {
     // First checks if the parameter has already been declared
     if (parameterExists(name))
       throw new SemanticError("Parameter " + name + " is already declared");
@@ -71,6 +75,7 @@ public class SymbolTable {
     paramNames.add(name);
     paramTypes.add(type);
     paramArray.add(isArray);
+    paramArraySize.add(arraySize);
   }
   
   /**
@@ -152,5 +157,6 @@ public class SymbolTable {
     paramNames = new ArrayList<>();
     paramTypes = new ArrayList<>();
     paramArray = new ArrayList<>();
+    paramArraySize = new ArrayList<>();
   }
 }

@@ -24,8 +24,9 @@ public class SymbolTableWindow extends javax.swing.JFrame {
         model.setValueAt(symbol.isParameter(), i, 4);
         model.setValueAt(symbol.getPosition(), i, 5);
         model.setValueAt(symbol.isArray(), i, 6);
-        model.setValueAt(symbol.isMatrix(), i, 7);
-        model.setValueAt(symbol.isReference(), i, 8);
+        model.setValueAt(symbol.getArraySize(), i, 7);
+        model.setValueAt(symbol.isMatrix(), i, 8);
+        model.setValueAt(symbol.isReference(), i, 9);
         i++;
       }
       
@@ -52,14 +53,14 @@ public class SymbolTableWindow extends javax.swing.JFrame {
 
       },
       new String [] {
-        "ID", "Tipo", "Usado", "Escopo", "Parâmetro", "Posição", "Array", "Matriz", "Referência"
+        "ID", "Tipo", "Usado", "Escopo", "Parâmetro", "Posição", "Array", "Tamanho Array", "Matriz", "Referência"
       }
     ) {
       Class[] types = new Class [] {
-        java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
+        java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.Boolean.class
       };
       boolean[] canEdit = new boolean [] {
-        false, false, false, false, false, false, false, false, false
+        false, false, false, false, false, false, false, false, false, false
       };
 
       public Class getColumnClass(int columnIndex) {
