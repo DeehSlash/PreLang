@@ -348,7 +348,7 @@ public class Semantico {
           // If it's a int
           else
             assembler.addToText("LDI", leftTemp);
-          assembler.addToText("STO", "temp1"); 
+          assembler.addToText("STO", "1000"); 
         }
         break;
       // -----------------------------------------------------------------------
@@ -362,9 +362,9 @@ public class Semantico {
           // If it's a int
           else
             assembler.addToText("LDI", rightTemp);
-          assembler.addToText("STO", "temp2"); 
-          assembler.addToText("LD", "temp1");
-          assembler.addToText("SUB", "temp2");
+          assembler.addToText("STO", "1001"); 
+          assembler.addToText("LD", "1000");
+          assembler.addToText("SUB", "1001");
         }
         break;
       // -----------------------------------------------------------------------
