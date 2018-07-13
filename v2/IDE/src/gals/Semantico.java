@@ -43,7 +43,7 @@ public class Semantico {
   private String leftTemp = "";
   private String relationalOp = "";
   private String rightTemp = "";
-  
+
   /**
    * ACTION MANUAL
    * This comment describes the range of values availables for each action
@@ -184,6 +184,21 @@ public class Semantico {
         
       // IF command (after scope)
       case 302:
+        assembler.addLabel(labelStack.pop());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // ELSE command
+      case 303:
+        String labelIf = labelStack.pop();
+        labelStack.push("R" + labelCounter++);
+        assembler.addToText("JMP", labelStack.peek());
+        assembler.addLabel(labelIf);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // ELSE command (after scope)
+      case 304:
         assembler.addLabel(labelStack.pop());
         break;
       // -----------------------------------------------------------------------
@@ -372,6 +387,7 @@ public class Semantico {
       // Expression - START
       case 850:
         resolvingExpression = true;
+        semanticTable = new Stack<>();
         break;
       // -----------------------------------------------------------------------
         

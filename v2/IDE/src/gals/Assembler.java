@@ -16,7 +16,7 @@ public class Assembler {
    * Default constructor
    */
   public Assembler() {
-    this.data = ".data\n";
+    this.data = "";
     this.text = ".text\n";
   }
 
@@ -34,6 +34,8 @@ public class Assembler {
    * @param b  Right side of the command (initial value)
    */
   public void addToData(String a, String b) {
+    if (data.equals(""))
+      data = ".data\n";
     this.data += "    " + removePrefixes(a) + " : " + b + "\n";
   }
   

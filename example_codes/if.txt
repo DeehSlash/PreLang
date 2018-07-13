@@ -1,6 +1,8 @@
 @main () -> int {
-	if (5 < 2) {
+	if (5 > 2) {
 		@print(1)
+	} else {
+		@print(0)
 	}
-	@print(0)
+	@print(2)
 }
