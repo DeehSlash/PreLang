@@ -334,7 +334,7 @@ OP_BW_RS: ">>"
 
 
 // CONDITIONAL ----------
-<if> ::= IF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+<if> ::= IF #300 SUBGROUP_OPEN <exp> SUBGROUP_CLOSE #301 <scope> #302;
 <else> ::= ELSE <scope>;
 <elsif> ::= <single_elsif> | <single_elsif> <elsif>;
 <single_elsif> ::= ELSIF SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
@@ -356,7 +356,7 @@ OP_BW_RS: ">>"
 <exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
 <exp3> ::= <exp3> OP_BW_XOR <exp4> | <exp4>;
 <exp4> ::= <exp4> OP_BW_AND <exp5> | <exp5>;
-<exp5> ::= <exp5> <op_relational> #824 <exp6> | <exp6>;
+<exp5> ::= <exp5> <op_relational> #825 <exp6> #826 | <exp6>;
 <exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9>;

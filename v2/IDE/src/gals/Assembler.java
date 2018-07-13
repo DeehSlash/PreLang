@@ -47,6 +47,14 @@ public class Assembler {
   }
   
   /**
+   * Adds a label to the text section
+   * @param label Label name
+   */
+  public void addLabel(String label) {
+    this.text += label + ":\n";
+  }
+  
+  /**
    * Removes @ and $ prefixes from a string
    * @param string String to remove prefixes
    * @return The formatted string

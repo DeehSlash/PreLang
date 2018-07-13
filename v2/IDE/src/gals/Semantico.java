@@ -22,6 +22,10 @@ public class Semantico {
   private Stack<String> scopeStack = new Stack<>();
   private int scopeCount = 0;
 
+  // Label Stack
+  private Stack<String> labelStack = new Stack<>();
+  private int labelCounter = 0;
+  
   // Temp variables
   private String lastAttribute;
   private String lastFunction;
@@ -33,8 +37,12 @@ public class Semantico {
   
   // Temp variables (assembler)
   private boolean flagExp = false;
+  private boolean flagIf = false;
   private String op = "";
   private String name_id_attrib = "";
+  private String leftTemp = "";
+  private String relationalOp = "";
+  private String rightTemp = "";
   
   /**
    * ACTION MANUAL
@@ -136,6 +144,50 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
+      // If command (start)
+      case 300:
+        flagIf = true;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // If command (end)
+      case 301:
+        labelStack.push("R" + labelCounter++);
+        
+        switch (relationalOp) {
+          case "<=":
+            assembler.addToText("BGT", labelStack.peek());
+            break;
+          case "<":
+            assembler.addToText("BGE", labelStack.peek());
+            break;
+          case ">":
+            assembler.addToText("BLE", labelStack.peek());
+            break;
+          case ">=":
+            assembler.addToText("BLT", labelStack.peek());
+            break;
+          case "==":
+            assembler.addToText("BNE", labelStack.peek());
+            break;
+          case "!=":
+            assembler.addToText("BEQ", labelStack.peek());
+            break;
+        }
+        
+        flagIf = false;
+        leftTemp = "";
+        rightTemp = "";
+        relationalOp = "";
+        break;
+      // -----------------------------------------------------------------------
+        
+      // IF command (after scope)
+      case 302:
+        assembler.addLabel(labelStack.pop());
+        break;
+      // -----------------------------------------------------------------------
+        
       // Expression - INT
       case 800:
         if (resolvingExpression) {
@@ -150,6 +202,16 @@ public class Semantico {
               assembler.addToText("SUBI", token.getLexeme());
             flagExp = false;
           }
+        }
+        
+        // If it's an IF command
+        if (flagIf) {
+          // If left temp is not defined, define it
+          if (leftTemp.equals(""))
+            leftTemp = token.getLexeme();
+          // If left is defined, then define as right temp
+          else
+            rightTemp = token.getLexeme();
         }
         break;
       // -----------------------------------------------------------------------
@@ -186,13 +248,17 @@ public class Semantico {
       case 810:
         lastAttribute = token.getLexeme();
         
+        // If not resolving an expression
         if (!resolvingExpression) {
+          // If symbol hasn't been declared before, adds it
           if (!symbolTable.identifierExists(lastAttribute, scopeStack)) {
             symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                     scopeStack.peek(), isArray, arraySize);
             assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
           }
           name_id_attrib = token.getLexeme();
+          
+        // If resolving an expression
         } else {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
           symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
@@ -206,6 +272,16 @@ public class Semantico {
               assembler.addToText("SUB", scopeStack.peek() + "_" + lastAttribute);
             flagExp = false;
           }
+        }
+        
+        // If it's an IF command
+        if (flagIf) {
+          // If left temp is not defined, define it
+          if (leftTemp.equals(""))
+            leftTemp = scopeStack.peek() + "_" + lastAttribute;
+          // If left is defined, then define as right temp
+          else
+            rightTemp = scopeStack.peek() + "_" + lastAttribute;
         }
         break;
       // -----------------------------------------------------------------------
@@ -254,9 +330,42 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
-      // Expression - RELATIONAL operators
+      // Expression - OR and AND operators
       case 824:
         semanticTable.push(4);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - RELATIONAL operators
+      case 825:
+        semanticTable.push(4);
+        
+        relationalOp = token.getLexeme();
+        if (flagIf) {
+          // If left temp is a variable
+          if (leftTemp.startsWith("@"))
+            assembler.addToText("LD", leftTemp);
+          // If it's a int
+          else
+            assembler.addToText("LDI", leftTemp);
+          assembler.addToText("STO", "temp1"); 
+        }
+        break;
+      // -----------------------------------------------------------------------
+
+      // Expression - RELATIONAL operators (after)
+      case 826:
+        if (flagIf) {
+          // If left temp is a variable
+          if (rightTemp.startsWith("@"))
+            assembler.addToText("LD", rightTemp);
+          // If it's a int
+          else
+            assembler.addToText("LDI", rightTemp);
+          assembler.addToText("STO", "temp2"); 
+          assembler.addToText("LD", "temp1");
+          assembler.addToText("SUB", "temp2");
+        }
         break;
       // -----------------------------------------------------------------------
         
@@ -268,10 +377,12 @@ public class Semantico {
         
       // Expression - END
       case 851:
-        lastType = resolveExpression();
+        if (!flagIf) {
+          lastType = resolveExpression();
+          symbolTable.updateAttribute(lastAttribute, lastType);
+          assembler.addToText("STO", scopeStack.peek() + "_" + name_id_attrib);
+        }
         resolvingExpression = false;
-        symbolTable.updateAttribute(lastAttribute, lastType);
-        assembler.addToText("STO", scopeStack.peek() + "_" + name_id_attrib);
         break;
       // -----------------------------------------------------------------------
         
