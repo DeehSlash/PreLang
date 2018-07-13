@@ -148,8 +148,10 @@ public class Semantico {
         if (!resolvingExpression)
           symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                   scopeStack.peek(), isArray, arraySize);
-        else
+        else {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
+          symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
+        }
         break;
       // -----------------------------------------------------------------------
         
@@ -162,8 +164,10 @@ public class Semantico {
         if (!resolvingExpression)
           symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                   scopeStack.peek(), isArray, arraySize);
-        else
+        else {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
+          symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
+        }
         break;
       // -----------------------------------------------------------------------
       
@@ -220,6 +224,9 @@ public class Semantico {
         
       // Scope close
       case 901:
+        // Before exiting the scope, check for variables that haven't been used
+        symbolTable.checkForNotUsed(scopeStack.peek());
+        
         // Removes the top scope
         scopeStack.pop();
         

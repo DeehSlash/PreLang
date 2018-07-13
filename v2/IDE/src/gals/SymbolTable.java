@@ -157,8 +157,19 @@ public class SymbolTable {
   }
   
   /**
+   * Set an attribute as used
+   * @param name Name of the attribute
+   * @param scope
+   */
+  public void setAttributeAsUsed(String name, String scope) {
+    for (Symbol symbol : symbolTable) {
+      if (symbol.getIdentifier().equals(name) && symbol.getScope().startsWith(scope))
+        symbol.setUsed(true);
+    }
+  }
+  
+  /**
    * Checks for symbols that haven't been used
-   *
    * @param scope Scope to check symbols
    */
   public void checkForNotUsed(String scope) {
