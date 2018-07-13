@@ -312,7 +312,7 @@ OP_BW_RS: ">>"
 <command> ::= <attributes> | <attributes> OP_ASSIGN <values>;
 <command> ::= <attribute> OP_ASSIGN #850 <exp> #851;
 // INPUT / OUTPUT
-<command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
+<command> ::= PRINT SUBGROUP_OPEN <attribute> #201 SUBGROUP_CLOSE | PRINT SUBGROUP_OPEN INT #202 SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE #200;
 // FUNCTION CALL
 <command> ::= <function_call> | <attribute> OP_ASSIGN <function_call>;

@@ -121,6 +121,21 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------        
         
+      // Print command (attribute)
+      case 201:
+        symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
+        assembler.addToText("LD", scopeStack.peek() + "_" + lastAttribute);
+        assembler.addToText("STO", "$out_port");
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Print command (int)
+      case 202:
+        assembler.addToText("LDI", token.getLexeme());
+        assembler.addToText("STO", "$out_port");
+        break;
+      // -----------------------------------------------------------------------
+        
       // Expression - INT
       case 800:
         if (resolvingExpression) {
@@ -172,9 +187,11 @@ public class Semantico {
         lastAttribute = token.getLexeme();
         
         if (!resolvingExpression) {
-          symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
-                  scopeStack.peek(), isArray, arraySize);
-          assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
+          if (!symbolTable.identifierExists(lastAttribute, scopeStack)) {
+            symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
+                    scopeStack.peek(), isArray, arraySize);
+            assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
+          }
           name_id_attrib = token.getLexeme();
         } else {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
