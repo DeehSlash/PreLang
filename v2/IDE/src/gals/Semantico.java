@@ -145,10 +145,11 @@ public class Semantico {
       case 810:
         lastAttribute = token.getLexeme();
         
-        if (!resolvingExpression)
+        if (!resolvingExpression) {
           symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                   scopeStack.peek(), isArray, arraySize);
-        else {
+          assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
+        } else {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
           symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
         }

@@ -34,7 +34,7 @@ public class Assembler {
    * @param b  Right side of the command (initial value)
    */
   public void addToData(String a, String b) {
-    this.data += "    " + a + " : " + b + "\n";
+    this.data += "    " + removePrefixes(a) + " : " + b + "\n";
   }
   
   /**
@@ -44,5 +44,14 @@ public class Assembler {
    */
   public void addToText(String a, String b) {
     this.text += "    " + a + "\t" + b + "\n";
+  }
+  
+  /**
+   * Removes @ and $ prefixes from a string
+   * @param string String to remove prefixes
+   * @return The formatted string
+   */
+  private String removePrefixes(String string) {
+    return string.replaceAll("[$|@]", "");
   }
 }
