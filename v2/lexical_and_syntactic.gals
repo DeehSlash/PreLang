@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -273,7 +273,7 @@ OP_BW_RS: ">>"
 // Attributes (assignable)
 <attributes> ::= <attribute> | <attribute> COMMA <attributes>;
 // Ex.: $a | $a, &PI, $array[1]
-<attribute> ::= VAR | CONST | <array>;
+<attribute> ::= VAR #810 | CONST #811 | <array>;
 // Ex.: $a | &PI | $a[2] | &TEST[1]
 // ---------------------
 
@@ -285,13 +285,13 @@ OP_BW_RS: ">>"
 <primitive_type> ::= TYPE_VOID | TYPE_INT | TYPE_FLOAT | TYPE_DOUBLE | TYPE_STRING | TYPE_CHAR | TYPE_BOOLEAN;
 // Ex.: void | int | float | double | string | char | boolean
 // Single value
-<type_value> ::= INT | FLOAT | BOOLEAN | BINARY | HEXADECIMAL | STRING | CHAR;
+<type_value> ::= INT #800 | FLOAT #801 | BOOLEAN #802 | BINARY | HEXADECIMAL | STRING #803 | CHAR #804;
 // Ex.: 1 | 5 | "Hello" | TRUE
 // ----------------
 
 
 // ARRAYS ----------
-<array> ::= VAR <array_index> | CONST <array_index>;
+<array> ::= VAR #812 <array_index> | CONST #813 <array_index>;
 // Ex.: $a[5] | &b[1 + 2]
 <array_values> ::= INDEX_OPEN <values> INDEX_CLOSE;
 <array_index> ::= INDEX_OPEN <exp> INDEX_CLOSE;
@@ -351,12 +351,12 @@ OP_BW_RS: ">>"
 
 
 // EXPRESSIONS ----------
-<exp>  ::= <exp> OP_OR <exp1> | <exp1>;
-<exp1> ::= <exp1> OP_AND <exp2> | <exp2>;
+<exp>  ::= <exp> OP_OR #824 <exp1> | <exp1>;
+<exp1> ::= <exp1> OP_AND #824 <exp2> | <exp2>;
 <exp2> ::= <exp2> OP_BW_OR <exp3> | <exp3>;
 <exp3> ::= <exp3> OP_BW_XOR <exp4> | <exp4>;
 <exp4> ::= <exp4> OP_BW_AND <exp5> | <exp5>;
-<exp5> ::= <exp5> <op_relational> <exp6> | <exp6>;
+<exp5> ::= <exp5> <op_relational> #824 <exp6> | <exp6>;
 <exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
 <exp7> ::= <exp7> <op_arithmetic_low> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arithmetic_high> <exp9> | <exp9>;
@@ -370,6 +370,6 @@ OP_BW_RS: ">>"
 <op_relational> ::= OP_GT | OP_LT | OP_GTE | OP_LTE | OP_EQ | OP_NEQ; 
 <op_negate> ::= OP_SUB | OP_BW_NOT | OP_NOT;
 <op_bitwise> ::= OP_BW_LS | OP_BW_RS;
-<op_arithmetic_low> ::= OP_ADD | OP_SUB;
-<op_arithmetic_high> ::= OP_MULT | OP_DIV | OP_MOD;
+<op_arithmetic_low> ::= OP_ADD #820 | OP_SUB #821;
+<op_arithmetic_high> ::= OP_MULT #822 | OP_DIV #823 | OP_MOD;
 // --------------------

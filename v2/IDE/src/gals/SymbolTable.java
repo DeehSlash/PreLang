@@ -32,6 +32,33 @@ public class SymbolTable {
   }
   
   /**
+   * Adds a new attribute (var or const) to the Symbol Table
+   * @param name Attribute name
+   * @param type Attribute type
+   * @param scope Attribute scope
+   * @param isArray If attribute is array
+   * @param arraySize Array size (if attribute is array)
+   */
+  public void addAttribute(String name, Type type, String scope,
+          boolean isArray, int arraySize) {
+    // Adds the attribute to the Symbol Table
+    symbolTable.add(new Symbol(name, type, false, scope, false, 0, isArray,
+            arraySize, false, false));
+  }
+  
+  /**
+   * Updates the type of an attribute
+   * @param name Name of the attribute to be updated
+   * @param type Type to set
+   */
+  public void updateAttribute(String name, Type type) {
+    for (Symbol symbol : symbolTable) {
+      if (symbol.getIdentifier().equals(name))
+        symbol.setType(type);
+    }
+  }
+  
+  /**
    * Adds a new function to the Symbol Table
    * @param name Function name
    * @param type Function return type
@@ -140,6 +167,55 @@ public class SymbolTable {
         IDE.mainWindow.warn("Symbol " + symbol.getIdentifier() + " not used in scope " + scope);
       }
     }
+  }
+  
+  /**
+   * Gets the type of the given identifier and converts it to an expression type
+   * @param id Identifier to lookup
+   * @return The expression type
+   * @throws SemanticError Throws an error if the symbol has not been declared,
+   * initialized or if the type is not supported in expressions
+   */
+  public int getExpressionType(String id) throws SemanticError {
+    // Gets the type
+    Type type = getType(id);
+    
+    // If the type is null or undefined, throw an exception
+    if (type == null)
+      throw new SemanticError("Symbol " + id + " has not been declared");
+    else if (type == Type.UNDEFINED)
+      throw new SemanticError("Symbol " + id + " has not been initialized");
+    
+    // Returns the expression type
+    switch(type) {
+      case INT:
+        return 0;
+      case FLOAT:
+        return 1;
+      case CHAR:
+        return 2;
+      case STRING:
+        return 3;
+      case BOOLEAN:
+        return 4;
+    }
+    
+    // If it's an unsupported expression type, throws an exception
+    throw new SemanticError("Type " + type + " is not supported in expressions");
+  }
+  
+  /**
+   * Gets the type of the given identifier
+   * @param id Identifier to lookup
+   * @return The type of the found identifier, or null if not found
+   */
+  public Type getType(String id) {
+    for (Symbol symbol : symbolTable) {
+      if (symbol.getIdentifier().equals(id))
+        return symbol.getType();
+    }
+    
+    return null;
   }
   
   /**

@@ -1,0 +1,18 @@
+# This example code is meant to test assignments with expressions
+
+@main () -> int {
+  # UNDEFINED
+  $a
+
+  # FLOAT
+  &PI = 3.14
+
+  # FLOAT
+  $b = 3 * 1.5
+
+  # ERROR: $a not initialized
+  $c = 2 * $a
+
+  # ERROR: $z not declared
+  $d = &PI * $z
+}

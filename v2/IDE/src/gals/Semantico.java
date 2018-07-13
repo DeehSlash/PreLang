@@ -23,11 +23,13 @@ public class Semantico {
   private int scopeCount = 0;
 
   // Temp variables
+  private String lastAttribute;
   private String lastFunction;
   private String lastParameter;
   private Type lastType = Type.UNDEFINED;
   private boolean isArray = false;
   private int arraySize = 0;
+  private boolean resolvingExpression = false;
   
   /**
    * ACTION MANUAL
@@ -38,6 +40,9 @@ public class Semantico {
    * 
    * 100 - 199
    * Types
+   * 
+   * 800 - 899
+   * Expressions
    * 
    * 900 - 999
    * Misc (scope, etc.)
@@ -101,6 +106,111 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
+      // Expression - INT
+      case 800:
+        if (resolvingExpression)
+          semanticTable.push(0);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - FLOAT
+      case 801:
+        if (resolvingExpression)
+          semanticTable.push(1);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - BOOLEAN
+      case 802:
+        if (resolvingExpression)
+          semanticTable.push(4);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - STRING
+      case 803:
+        if (resolvingExpression)
+          semanticTable.push(3);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - CHAR
+      case 804:
+        if (resolvingExpression)
+          semanticTable.push(2);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - VARIABLE
+      case 810:
+        lastAttribute = token.getLexeme();
+        
+        if (!resolvingExpression)
+          symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
+                  scopeStack.peek(), isArray, arraySize);
+        else
+          semanticTable.push(symbolTable.getExpressionType(lastAttribute));
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - CONSTANT
+      case 811:
+        lastAttribute = token.getLexeme();
+        symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
+                scopeStack.peek(), isArray, arraySize);
+        
+        if (!resolvingExpression)
+          symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
+                  scopeStack.peek(), isArray, arraySize);
+        else
+          semanticTable.push(symbolTable.getExpressionType(lastAttribute));
+        break;
+      // -----------------------------------------------------------------------
+      
+      // Expression - ADD operator
+      case 820:
+        semanticTable.push(0);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - SUB operator
+      case 821:
+        semanticTable.push(1);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - MULT operator
+      case 822:
+        semanticTable.push(2);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - DIV operator
+      case 823:
+        semanticTable.push(3);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - RELATIONAL operators
+      case 824:
+        semanticTable.push(4);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - START
+      case 850:
+        resolvingExpression = true;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Expression - END
+      case 851:
+        lastType = resolveExpression();
+        resolvingExpression = false;
+        symbolTable.updateAttribute(lastAttribute, lastType);
+        break;
+      // -----------------------------------------------------------------------
+        
       // Scope open
       case 900:
         // Generate scope
@@ -140,6 +250,48 @@ public class Semantico {
   }
   
   /**
+   * Resolves an expression and returns the resulting type
+   * @return The resulting type
+   * @throws SemanticError 
+   */
+  private Type resolveExpression() throws SemanticError {
+    // While there's something to resolve
+    while (semanticTable.size() > 1) {
+      // Get the operating and the operator
+      int type1 = semanticTable.pop();
+      int operator = semanticTable.pop();
+      int type2 = semanticTable.pop();
+      
+      // Calculate the result
+      int result = SemanticTable.resultType(type1, type2, operator);
+      
+      // If the result is correct, insert in the table again
+      if (result != SemanticTable.ERR)
+        semanticTable.push(result);
+      else
+        throw new SemanticError("Invalid expression");
+    }
+      
+    // Get the resulting type
+    int resultingType = semanticTable.pop();
+    
+    switch(resultingType) {
+      case 0:
+        return Type.INT;
+      case 1:
+        return Type.FLOAT;
+      case 2:
+        return Type.CHAR;
+      case 3:
+        return Type.STRING;
+      case 4:
+        return Type.BOOLEAN;
+    }
+    
+    return Type.UNDEFINED;
+  }
+  
+  /**
    * Parses Type from String
    * @param type String to be parsed
    * @return Type The parsed type
@@ -174,10 +326,11 @@ public class Semantico {
    * Reset mode and temp variables to its default state
    */
   private void resetState () {
-    lastFunction = "";
+    lastAttribute = "";
     lastParameter = "";
     lastType = Type.UNDEFINED;
     isArray = false;
     arraySize = 0;
+    resolvingExpression = false;
   }
 }
