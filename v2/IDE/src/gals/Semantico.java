@@ -31,6 +31,11 @@ public class Semantico {
   private int arraySize = 0;
   private boolean resolvingExpression = false;
   
+  // Temp variables (assembler)
+  private boolean flagExp = false;
+  private String op = "";
+  private String name_id_attrib = "";
+  
   /**
    * ACTION MANUAL
    * This comment describes the range of values availables for each action
@@ -108,8 +113,19 @@ public class Semantico {
         
       // Expression - INT
       case 800:
-        if (resolvingExpression)
+        if (resolvingExpression) {
           semanticTable.push(0);
+          
+          if (!flagExp)
+            assembler.addToText("LDI", token.getLexeme());
+          else {
+            if (op.equals("+"))
+              assembler.addToText("ADDI", token.getLexeme());
+            else if (op.equals("-"))
+              assembler.addToText("SUBI", token.getLexeme());
+            flagExp = false;
+          }
+        }
         break;
       // -----------------------------------------------------------------------
         
@@ -149,9 +165,20 @@ public class Semantico {
           symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                   scopeStack.peek(), isArray, arraySize);
           assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
+          name_id_attrib = token.getLexeme();
         } else {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
           symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
+          
+          if (!flagExp)
+            assembler.addToText("LD", scopeStack.peek() + "_" + lastAttribute);
+          else {
+            if (op.equals("+"))
+              assembler.addToText("ADD", scopeStack.peek() + "_" + lastAttribute);
+            else if (op.equals("-"))
+              assembler.addToText("SUB", scopeStack.peek() + "_" + lastAttribute);
+            flagExp = false;
+          }
         }
         break;
       // -----------------------------------------------------------------------
@@ -175,12 +202,16 @@ public class Semantico {
       // Expression - ADD operator
       case 820:
         semanticTable.push(0);
+        flagExp = true;
+        op = token.getLexeme();
         break;
       // -----------------------------------------------------------------------
         
       // Expression - SUB operator
       case 821:
         semanticTable.push(1);
+        flagExp = true;
+        op = token.getLexeme();
         break;
       // -----------------------------------------------------------------------
         
@@ -213,6 +244,7 @@ public class Semantico {
         lastType = resolveExpression();
         resolvingExpression = false;
         symbolTable.updateAttribute(lastAttribute, lastType);
+        assembler.addToText("STO", scopeStack.peek() + "_" + name_id_attrib);
         break;
       // -----------------------------------------------------------------------
         

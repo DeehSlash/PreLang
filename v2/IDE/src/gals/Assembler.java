@@ -43,7 +43,7 @@ public class Assembler {
    * @param b Right side of the command
    */
   public void addToText(String a, String b) {
-    this.text += "    " + a + "\t" + b + "\n";
+    this.text += "    " + a + "\t" + removePrefixes(b) + "\n";
   }
   
   /**
