@@ -38,7 +38,7 @@ public class Assembler {
   }
   
   /**
-   * Adds a lien to the text section
+   * Adds a line to the text section
    * @param a Left side of the command (mnemonic)
    * @param b Right side of the command
    */
