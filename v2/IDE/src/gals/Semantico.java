@@ -37,7 +37,7 @@ public class Semantico {
   
   // Temp variables (assembler)
   private boolean flagExp = false;
-  private boolean flagIf = false;
+  private boolean flagRelational = false;
   private String op = "";
   private String name_id_attrib = "";
   private String leftTemp = "";
@@ -144,9 +144,9 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
-      // If command (start)
+      // IF start
       case 300:
-        flagIf = true;
+        flagRelational = true;
         break;
       // -----------------------------------------------------------------------
         
@@ -175,7 +175,7 @@ public class Semantico {
             break;
         }
         
-        flagIf = false;
+        flagRelational = false;
         leftTemp = "";
         rightTemp = "";
         relationalOp = "";
@@ -203,6 +203,54 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
+      // WHILE command
+      case 310:
+        flagRelational = true;
+        labelStack.push("R" + labelCounter++);
+        assembler.addLabel(labelStack.peek());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // WHILE command (end)
+      case 311:
+        labelStack.push("R" + labelCounter++);
+        
+        switch (relationalOp) {
+          case "<=":
+            assembler.addToText("BGT", labelStack.peek());
+            break;
+          case "<":
+            assembler.addToText("BGE", labelStack.peek());
+            break;
+          case ">":
+            assembler.addToText("BLE", labelStack.peek());
+            break;
+          case ">=":
+            assembler.addToText("BLT", labelStack.peek());
+            break;
+          case "==":
+            assembler.addToText("BNE", labelStack.peek());
+            break;
+          case "!=":
+            assembler.addToText("BEQ", labelStack.peek());
+            break;
+        }
+        
+        flagRelational = false;
+        leftTemp = "";
+        rightTemp = "";
+        relationalOp = "";
+        break;
+      // -----------------------------------------------------------------------
+        
+      // WHILE command (after scope)
+      case 312:
+        String labelWhile = labelStack.pop();
+        assembler.addToText("JMP", labelStack.pop());
+        assembler.addLabel(labelWhile);
+        break;
+      // -----------------------------------------------------------------------
+        
       // Expression - INT
       case 800:
         if (resolvingExpression) {
@@ -220,7 +268,7 @@ public class Semantico {
         }
         
         // If it's an IF command
-        if (flagIf) {
+        if (flagRelational) {
           // If left temp is not defined, define it
           if (leftTemp.equals(""))
             leftTemp = token.getLexeme();
@@ -267,6 +315,7 @@ public class Semantico {
         if (!resolvingExpression) {
           // If symbol hasn't been declared before, adds it
           if (!symbolTable.identifierExists(lastAttribute, scopeStack)) {
+            System.out.println("ID não existe: " + lastAttribute);
             symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                     scopeStack.peek(), isArray, arraySize);
             assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
@@ -279,18 +328,21 @@ public class Semantico {
           symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
           
           if (!flagExp)
-            assembler.addToText("LD", scopeStack.peek() + "_" + lastAttribute);
+            assembler.addToText("LD", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
           else {
             if (op.equals("+"))
-              assembler.addToText("ADD", scopeStack.peek() + "_" + lastAttribute);
+              assembler.addToText("ADD", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
             else if (op.equals("-"))
-              assembler.addToText("SUB", scopeStack.peek() + "_" + lastAttribute);
+              assembler.addToText("SUB", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
             flagExp = false;
           }
         }
         
         // If it's an IF command
-        if (flagIf) {
+        if (flagRelational) {
           // If left temp is not defined, define it
           if (leftTemp.equals(""))
             leftTemp = scopeStack.peek() + "_" + lastAttribute;
@@ -356,7 +408,7 @@ public class Semantico {
         semanticTable.push(4);
         
         relationalOp = token.getLexeme();
-        if (flagIf) {
+        if (flagRelational) {
           // If left temp is a variable
           if (leftTemp.startsWith("@"))
             assembler.addToText("LD", leftTemp);
@@ -370,7 +422,7 @@ public class Semantico {
 
       // Expression - RELATIONAL operators (after)
       case 826:
-        if (flagIf) {
+        if (flagRelational) {
           // If left temp is a variable
           if (rightTemp.startsWith("@"))
             assembler.addToText("LD", rightTemp);
@@ -393,10 +445,11 @@ public class Semantico {
         
       // Expression - END
       case 851:
-        if (!flagIf) {
+        if (!flagRelational) {
           lastType = resolveExpression();
           symbolTable.updateAttribute(lastAttribute, lastType);
-          assembler.addToText("STO", scopeStack.peek() + "_" + name_id_attrib);
+          assembler.addToText("STO", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
         }
         resolvingExpression = false;
         break;

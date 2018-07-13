@@ -1,0 +1,9 @@
+@main () -> int {
+	$cont = 0
+
+	while ($cont <= 5) {
+		$cont = $cont + 1
+	}
+
+  @print(1)
+}

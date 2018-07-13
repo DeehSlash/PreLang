@@ -129,6 +129,28 @@ public class SymbolTable {
   }
   
   /**
+   * Gets the scope of the given identifier
+   * @param id Identifier to check
+   * @param scopeStack Scope Stack to check
+   * @return The scope of the given identifier if found, or null if not existent
+   */
+  public String getScope(String id, Stack<String> scopeStack) {
+    Iterator iterator = scopeStack.iterator();
+
+    while (iterator.hasNext()) {
+      String scope = (String) iterator.next();
+      for (Symbol symbol : symbolTable) {
+        if(symbol.getIdentifier() != null) {
+          if (symbol.getIdentifier().equals(id) && symbol.getScope().startsWith(scope))
+            return symbol.getScope();
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
    * Checks if the given function exists
    * @param name Function name to check
    * @return True if the function exists in the global scope

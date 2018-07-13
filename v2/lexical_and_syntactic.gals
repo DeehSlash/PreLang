@@ -341,7 +341,7 @@ OP_BW_RS: ">>"
 
 
 // LOOPS ----------
-<while> ::= WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE <scope>;
+<while> ::= WHILE #310 SUBGROUP_OPEN <exp> SUBGROUP_CLOSE #311 <scope> #312;
 <do_while> ::= DO <scope> WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
 <for>  ::=  FOR SUBGROUP_OPEN <range> SUBGROUP_CLOSE <scope>;
 <range> ::= <attribute> IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
