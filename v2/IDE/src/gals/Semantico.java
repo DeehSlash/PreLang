@@ -46,6 +46,9 @@ public class Semantico {
    * 100 - 199
    * Types
    * 
+   * 200 - 399
+   * Commands
+   * 
    * 800 - 899
    * Expressions
    * 
@@ -110,6 +113,13 @@ public class Semantico {
         arraySize = Integer.parseInt(token.getLexeme());
         break;
       // -----------------------------------------------------------------------
+        
+      // Input command
+      case 200:
+        assembler.addToText("LD", "$in_port");
+        assembler.addToText("STO", scopeStack.peek() + "_" + lastAttribute);
+        break;
+      // -----------------------------------------------------------------------        
         
       // Expression - INT
       case 800:

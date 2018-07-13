@@ -52,6 +52,10 @@ public class Assembler {
    * @return The formatted string
    */
   private String removePrefixes(String string) {
+    // If it's one of the BIP ports, don't remove $
+    if (string.equals("$in_port") || string.equals("$out_port"))
+      return string;
+    
     return string.replaceAll("[$|@]", "");
   }
 }

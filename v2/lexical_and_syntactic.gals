@@ -8,7 +8,7 @@ SemanticName = Semantico
 Package = gals
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 ignore: [\t\r\s]+|(#.*\n)|[#][!][#-~\n\r\s\t\b]+[!][#]*
@@ -310,10 +310,10 @@ OP_BW_RS: ">>"
 <command_list> ::= <command> <new_line> | <command> <new_line> <command_list>;
 // ASSIGNMENTS
 <command> ::= <attributes> | <attributes> OP_ASSIGN <values>;
-<command> ::= <attribute> OP_ASSIGN <exp>;
+<command> ::= <attribute> OP_ASSIGN #850 <exp> #851;
 // INPUT / OUTPUT
 <command> ::= PRINT SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
-<command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE;
+<command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE #200;
 // FUNCTION CALL
 <command> ::= <function_call> | <attribute> OP_ASSIGN <function_call>;
 // Ex.:
