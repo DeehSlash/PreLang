@@ -18,6 +18,7 @@ public class Assembler {
   public Assembler() {
     this.data = "";
     this.text = ".text\n";
+    addToText("JMP", "_main");
   }
 
   /**
@@ -25,7 +26,7 @@ public class Assembler {
    * @return The full assembly code
    */
   public String getCode() {
-    return data + "\n" + text + "    " + "HLT";
+    return data + "\n" + text + "    " + "HLT\t0";
   }
 
   /**

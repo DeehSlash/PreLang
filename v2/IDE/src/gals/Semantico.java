@@ -38,6 +38,7 @@ public class Semantico {
   // Temp variables (assembler)
   private boolean flagExp = false;
   private boolean flagRelational = false;
+  private String assignAttribute = "";
   private String op = "";
   private String name_id_attrib = "";
   private String leftTemp = "";
@@ -48,6 +49,8 @@ public class Semantico {
   private String forEnd = "";
   private String forStep = "";
   private String forLoopLabel = "";
+  private String functionCall = "";
+  private int parameterCount = 0;
 
   /**
    * ACTION MANUAL
@@ -84,6 +87,7 @@ public class Semantico {
       // Function name (declaration)
       case 10:
         lastFunction = token.getLexeme();
+        assembler.addLabel("_" + lastFunction.replaceAll("@", ""));
         break;
       // -----------------------------------------------------------------------
         
@@ -91,6 +95,12 @@ public class Semantico {
       case 11:
         symbolTable.addFunction(lastFunction, lastType, isArray);
         resetState();
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Function (after scope)
+      case 12:
+        assembler.addToText("RETURN", "0");
         break;
       // -----------------------------------------------------------------------
         
@@ -104,6 +114,10 @@ public class Semantico {
       case 21:
         symbolTable.addParameter(lastParameter, lastType, isArray, arraySize);
         arraySize = 0;
+        
+        // If the parameter is INT (supported by BIP), then add it to the assembly
+        if (lastType == Type.INT)
+          assembler.addToData(lastFunction + "0" + "_" + lastParameter, "0");
         break;
       // -----------------------------------------------------------------------
         
@@ -148,6 +162,56 @@ public class Semantico {
       case 202:
         assembler.addToText("LDI", token.getLexeme());
         assembler.addToText("STO", "$out_port");
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Function call command
+      case 210:
+        functionCall = token.getLexeme();
+        parameterCount = 0;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Function call - INT parameter
+      case 211:
+        assembler.addToText("LDI", token.getLexeme());
+        assembler.addToText("STO", symbolTable.getParameterName(functionCall, parameterCount));
+        parameterCount++;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Function call - VAR parameter
+      case 212:
+        assembler.addToText("LD", symbolTable.getScope(token.getLexeme(),
+                    scopeStack) + "_" + token.getLexeme());
+        assembler.addToText("STO", symbolTable.getParameterName(functionCall, parameterCount));
+        parameterCount++;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Function call (end)
+      case 213:
+        assembler.addToText("CALL", "_" + functionCall);
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Return INT
+      case 214:
+        assembler.addToText("LDI", token.getLexeme());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // Return VAR
+      case 215:
+        assembler.addToText("LD", symbolTable.getScope(token.getLexeme(),
+                    scopeStack) + "_" + token.getLexeme());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // VAR that receives function return
+      case 216:
+        assembler.addToText("STO", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
         break;
       // -----------------------------------------------------------------------
         
@@ -418,7 +482,6 @@ public class Semantico {
         if (!resolvingExpression) {
           // If symbol hasn't been declared before, adds it
           if (!symbolTable.identifierExists(lastAttribute, scopeStack)) {
-            System.out.println("ID não existe: " + lastAttribute);
             symbolTable.addAttribute(lastAttribute, Type.UNDEFINED,
                     scopeStack.peek(), isArray, arraySize);
             assembler.addToData(scopeStack.peek() + "_" + lastAttribute, "0");
@@ -430,10 +493,11 @@ public class Semantico {
           semanticTable.push(symbolTable.getExpressionType(lastAttribute));
           symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
           
-          if (!flagExp)
+          if (!flagExp) {
+            System.out.println("Symbol " + lastAttribute + " - Scope " + scopeStack.peek());
             assembler.addToText("LD", symbolTable.getScope(lastAttribute,
                     scopeStack) + "_" + lastAttribute);
-          else {
+          } else {
             if (op.equals("+"))
               assembler.addToText("ADD", symbolTable.getScope(lastAttribute,
                     scopeStack) + "_" + lastAttribute);
@@ -544,6 +608,7 @@ public class Semantico {
       // Expression - START
       case 850:
         resolvingExpression = true;
+        assignAttribute = lastAttribute;
         semanticTable = new Stack<>();
         break;
       // -----------------------------------------------------------------------
@@ -554,8 +619,8 @@ public class Semantico {
           lastType = resolveExpression();
           symbolTable.updateAttribute(lastAttribute, lastType);
         }
-        assembler.addToText("STO", symbolTable.getScope(lastAttribute,
-                    scopeStack) + "_" + lastAttribute);
+        assembler.addToText("STO", symbolTable.getScope(assignAttribute,
+                    scopeStack) + "_" + assignAttribute);
         resolvingExpression = false;
         break;
       // -----------------------------------------------------------------------

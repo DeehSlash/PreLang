@@ -78,7 +78,7 @@ public class SymbolTable {
     // Then adds its parameters (if any)
     for (int i = 0; i < paramNames.size(); i++)
       this.symbolTable.add(new Symbol(paramNames.get(i), paramTypes.get(i),
-              false, name, true, i, paramArray.get(i), paramArraySize.get(i),
+              false, name + "0", true, i, paramArray.get(i), paramArraySize.get(i),
               false, false));
     
     // In any case, reset the temp variables
@@ -176,6 +176,17 @@ public class SymbolTable {
     }
     
     return false;
+  }
+  
+  public String getParameterName(String name, int count) {
+    for (Symbol symbol : symbolTable) {
+      if (symbol.getScope().equals(name + "0") && symbol.isParameter()
+              && symbol.getPosition() == count) {
+        return symbol.getScope() + "_" + symbol.getIdentifier();
+      }
+    }
+    
+    return null;
   }
   
   /**

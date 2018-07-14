@@ -144,6 +144,12 @@ OP_BW_RS: ">>"
 // -------------------
 
 
+// PARAMETER VALUES
+<param_values>
+<param_value>
+// -------------------
+
+
 // VALUES ------------
 //
 <values>
@@ -240,7 +246,7 @@ OP_BW_RS: ">>"
 <program> ::= <main_function> | <new_line> <main_function> | <function_list> <main_function> | <new_line> <function_list> <main_function>;
 <main_function> ::= MAIN_FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope> <new_line> | MAIN_FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope>; 
 <function_list> ::= <function> | <function> <function_list>;
-<function> ::= FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope> <new_line>;
+<function> ::= FUNCTION #10 <fn_parameter_list> FUNCTION_RETURN <type> #11 <scope> #12 <new_line>;
 // -------------------------
 
 
@@ -257,9 +263,15 @@ OP_BW_RS: ">>"
 
 // PARAMETERS ----------
 // Used in function call
-<parameters> ::= SUBGROUP_OPEN <values> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
+<parameters> ::= SUBGROUP_OPEN <param_values> SUBGROUP_CLOSE | SUBGROUP_OPEN SUBGROUP_CLOSE;
 // Ex.: (1, 5, "Hello", 1 + 2, TRUE)
 // --------------------------
+
+
+// PARAMETER VALUES
+<param_values> ::= <param_value> | <param_value> COMMA <param_values>;
+<param_value> ::= INT #211 | VAR #212;
+// -----------------
 
 
 // VALUES -------------------
@@ -315,9 +327,9 @@ OP_BW_RS: ">>"
 <command> ::= PRINT SUBGROUP_OPEN <attribute> #201 SUBGROUP_CLOSE | PRINT SUBGROUP_OPEN INT #202 SUBGROUP_CLOSE;
 <command> ::= <attribute> OP_ASSIGN INPUT SUBGROUP_OPEN SUBGROUP_CLOSE #200;
 // FUNCTION CALL
-<command> ::= <function_call> | <attribute> OP_ASSIGN <function_call>;
+<command> ::= <function_call> | <attribute> OP_ASSIGN <function_call> #216;
 // Ex.:
-<function_call> ::= FUNCTION <parameters>;
+<function_call> ::= FUNCTION #210 <parameters> #213;
 // Ex.: @calculate(1, '+', 2)
 // CONDITIONAL
 <command> ::= <if> #302 | <if> <else>;
@@ -328,7 +340,7 @@ OP_BW_RS: ">>"
 <command> ::= <do_while>;
 <command> ::= <for>;
 // SPECIAL
-<command> ::= RETURN <exp>;
+<command> ::= RETURN INT #214 | RETURN VAR #215;
 // ------------------
 
 
