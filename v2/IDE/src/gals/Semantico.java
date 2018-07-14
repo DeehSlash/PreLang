@@ -125,14 +125,16 @@ public class Semantico {
       // Input command
       case 200:
         assembler.addToText("LD", "$in_port");
-        assembler.addToText("STO", scopeStack.peek() + "_" + lastAttribute);
+        assembler.addToText("STO", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
         break;
       // -----------------------------------------------------------------------        
         
       // Print command (attribute)
       case 201:
         symbolTable.setAttributeAsUsed(lastAttribute, scopeStack.peek());
-        assembler.addToText("LD", scopeStack.peek() + "_" + lastAttribute);
+        assembler.addToText("LD", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
         assembler.addToText("STO", "$out_port");
         break;
       // -----------------------------------------------------------------------
@@ -251,6 +253,46 @@ public class Semantico {
         break;
       // -----------------------------------------------------------------------
         
+      // DO WHILE command
+      case 313:
+        flagRelational = true;
+        labelStack.push("R" + labelCounter++);
+        assembler.addLabel(labelStack.peek());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // DO WHILE command (end)
+      case 314:
+        String label = labelStack.pop();
+        
+        switch (relationalOp) {
+          case "<=":
+            assembler.addToText("BLT", label);
+            break;
+          case "<":
+            assembler.addToText("BLE", label);
+            break;
+          case ">":
+            assembler.addToText("BGE", label);
+            break;
+          case ">=":
+            assembler.addToText("BGT", label);
+            break;
+          case "==":
+            assembler.addToText("BEQ", label);
+            break;
+          case "!=":
+            assembler.addToText("BN", label);
+            break;
+        }
+        
+        flagRelational = false;
+        leftTemp = "";
+        rightTemp = "";
+        relationalOp = "";
+        break;
+      // -----------------------------------------------------------------------
+        
       // Expression - INT
       case 800:
         if (resolvingExpression) {
@@ -345,10 +387,12 @@ public class Semantico {
         if (flagRelational) {
           // If left temp is not defined, define it
           if (leftTemp.equals(""))
-            leftTemp = scopeStack.peek() + "_" + lastAttribute;
+            leftTemp = symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute;
           // If left is defined, then define as right temp
           else
-            rightTemp = scopeStack.peek() + "_" + lastAttribute;
+            rightTemp = symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute;
         }
         break;
       // -----------------------------------------------------------------------
@@ -448,9 +492,9 @@ public class Semantico {
         if (!flagRelational) {
           lastType = resolveExpression();
           symbolTable.updateAttribute(lastAttribute, lastType);
-          assembler.addToText("STO", symbolTable.getScope(lastAttribute,
-                    scopeStack) + "_" + lastAttribute);
         }
+        assembler.addToText("STO", symbolTable.getScope(lastAttribute,
+                    scopeStack) + "_" + lastAttribute);
         resolvingExpression = false;
         break;
       // -----------------------------------------------------------------------
