@@ -342,10 +342,10 @@ OP_BW_RS: ">>"
 
 // LOOPS ----------
 <while> ::= WHILE #310 SUBGROUP_OPEN <exp> SUBGROUP_CLOSE #311 <scope> #312;
-<do_while> ::= DO <scope> WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE;
-<for>  ::=  FOR SUBGROUP_OPEN <range> SUBGROUP_CLOSE <scope>;
-<range> ::= <attribute> IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
-<range_types> ::= INT | INT COMMA INT | INT COMMA INT COMMA INT;
+<do_while> ::= DO #313 <scope> WHILE SUBGROUP_OPEN <exp> SUBGROUP_CLOSE #314;
+<for>  ::=  FOR SUBGROUP_OPEN <range> SUBGROUP_CLOSE #324 <scope> #325;
+<range> ::= <attribute> #320 IN RANGE SUBGROUP_OPEN <range_types> SUBGROUP_CLOSE;
+<range_types> ::= INT | INT COMMA INT | INT #321 COMMA INT #322 COMMA INT #323;
 // ----------------
 
 

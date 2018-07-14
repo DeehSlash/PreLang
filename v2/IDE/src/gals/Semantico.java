@@ -43,6 +43,11 @@ public class Semantico {
   private String leftTemp = "";
   private String relationalOp = "";
   private String rightTemp = "";
+  private String forTemp = "";
+  private String forStart = "";
+  private String forEnd = "";
+  private String forStep = "";
+  private String forLoopLabel = "";
 
   /**
    * ACTION MANUAL
@@ -290,6 +295,62 @@ public class Semantico {
         leftTemp = "";
         rightTemp = "";
         relationalOp = "";
+        break;
+      // -----------------------------------------------------------------------
+        
+      // FOR command
+      case 320:
+        forTemp = lastAttribute;
+        break;
+      // -----------------------------------------------------------------------
+        
+      // FOR start
+      case 321:
+        forStart = token.getLexeme();
+        break;
+      // -----------------------------------------------------------------------
+     
+      // FOR end
+      case 322:
+        forEnd = token.getLexeme();
+        break;
+      // -----------------------------------------------------------------------
+        
+      // FOR step
+      case 323:
+        forStep = token.getLexeme();
+        break;
+      // -----------------------------------------------------------------------
+        
+      // FOR command (end)
+      case 324:
+        assembler.addToText("LDI", forStart);
+        String var = symbolTable.getScope(forTemp,
+                    scopeStack) + "_" + forTemp;
+        assembler.addToText("STO", var);
+        labelStack.push("R" + labelCounter++);
+        assembler.addLabel(labelStack.peek());
+        forLoopLabel = labelStack.peek();
+        assembler.addToText("LD", var);
+        assembler.addToText("STO", "1000");
+        assembler.addToText("LDI", forEnd);
+        assembler.addToText("STO", "1001");
+        assembler.addToText("LD", "1000");
+        assembler.addToText("SUB", "1001");
+        labelStack.push("R" + labelCounter++);
+        assembler.addToText("BGE", labelStack.peek());
+        break;
+      // -----------------------------------------------------------------------
+        
+      // FOR command (after scope)
+      case 325:
+        assembler.addToText("LD", symbolTable.getScope(forTemp,
+                    scopeStack) + "_" + forTemp);
+        assembler.addToText("ADDI", forStep);
+        assembler.addToText("STO", symbolTable.getScope(forTemp,
+                    scopeStack) + "_" + forTemp);
+        assembler.addToText("JMP", forLoopLabel);
+        assembler.addLabel(labelStack.peek());
         break;
       // -----------------------------------------------------------------------
         

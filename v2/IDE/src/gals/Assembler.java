@@ -25,7 +25,7 @@ public class Assembler {
    * @return The full assembly code
    */
   public String getCode() {
-    return data + "\n" + text;
+    return data + "\n" + text + "    " + "HLT";
   }
 
   /**
